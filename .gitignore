@@ -1,16 +1,20 @@
-# Node dependencies
-backend/server/node_modules/
+# Dependencies
+node_modules
+/backend/**/node_modules
+/frontend/**/node_modules
 
-# Environment files (do not commit secrets)
-backend/server/.env
+# Environment files
+.env
+.env.*
+!.env.sample
 
 # Logs
-*.log
 npm-debug.log*
+*.log
 yarn-debug.log*
 yarn-error.log*
 
-# OS/Editor files
+# OS / Editor
 .DS_Store
 Thumbs.db
 .vscode/

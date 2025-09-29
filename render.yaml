@@ -2,40 +2,16 @@ services:
   - type: web
     name: tecnocel-backend
     env: node
-    plan: free
     rootDir: backend/server
-    buildCommand: |
-      npm ci
-      mkdir -p public
-      cp -R ../../fronted/* ./public/
-      # Configura el frontend para apuntar al mismo origen del backend en producción
-      echo "window.API_BASE_URL=window.location.origin;" > ./public/config.js
-      # Copia panel de admin y login (opcional) para usar el mismo backend
-      cp ../admin.html ./public/ 2>/dev/null || true
-      cp ../admin.js ./public/ 2>/dev/null || true
-      cp ../login.html ./public/ 2>/dev/null || true
-      cp ../login.js ./public/ 2>/dev/null || true
-    startCommand: |
-      npm run migrate && npm start
+    buildCommand: npm install
+    startCommand: npm start
     autoDeploy: true
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: tecnocel-db
-          property: connectionString
-      - key: PGSSL
-        value: "true"
-      - key: NODE_ENV
-        value: production
-      - key: TRUST_PROXY
-        value: "true"
-      - key: FORCE_HTTPS
-        value: "true"
-      - key: DB_MIGRATIONS_DIR
-        value: ../database/migrations
-
-databases:
-  - name: tecnocel-db
+    region: oregon
     plan: free
-    databaseName: tecnocel
-    user: tecnocel_user
+  - type: static
+    name: tecnocel-frontend
+    rootDir: frontend
+    buildCommand: ""
+    staticPublishPath: frontend
+    autoDeploy: true
+    region: oregon
