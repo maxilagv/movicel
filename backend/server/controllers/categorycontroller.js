@@ -24,13 +24,10 @@ const validateCategory = [
   check('name')
     .trim()
     .notEmpty().withMessage('El nombre es obligatorio')
-    .isLength({ min: 3, max: 100 }).withMessage('El nombre debe tener entre 3 y 100 caracteres')
-    .escape(),
+    .isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres'),
   check('image_url')
     .trim()
-    .notEmpty().withMessage('La imagen es obligatoria')
-    .isURL().withMessage('La imagen debe ser una URL válida')
-    .escape(),
+    .notEmpty().withMessage('La imagen es obligatoria'),
   check('description')
     .optional()
     .isLength({ max: 2000 }).withMessage('La descripción es demasiado larga')
@@ -42,20 +39,10 @@ const validateCategoryUpdate = [
   check('name')
     .optional()
     .trim()
-    .isLength({ min: 3, max: 100 }).withMessage('El nombre debe tener entre 3 y 100 caracteres')
-    .escape(),
+    .isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres'),
   check('image_url')
     .optional()
-    .trim()
-    .custom((value) => {
-      if (value === undefined || value === null) return true;
-      const v = String(value).trim();
-      if (v === '') return true; // permitir limpiar si se desea
-      const isHttpUrl = /^https?:\/\//i.test(v);
-      const looksLikePath = /[\/\\]/.test(v) || /^[A-Za-z]:\\/.test(v);
-      return isHttpUrl || looksLikePath;
-    }).withMessage('La imagen debe ser una URL http(s) o una ruta válida')
-    .escape(),
+    .trim(),
   check('description')
     .optional()
     .isLength({ max: 2000 }).withMessage('La descripción es demasiado larga')
@@ -65,15 +52,22 @@ const validateCategoryUpdate = [
 async function createCategoria(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error('Validación fallida en createCategoria:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
   const { name, image_url, description } = req.body;
 
   try {
+    // Decidir destino de imagen según sea URL http(s) o ruta
+    const v = String(image_url || '').trim();
+    const isHttpUrl = /^https?:\/\//i.test(v);
+    const imgUrlVal = isHttpUrl ? v : null;
+    const imgFileVal = isHttpUrl ? null : v;
+
     const { rows } = await query(
-      'INSERT INTO Categories(name, image_url, description) VALUES ($1, $2, $3) RETURNING id',
-      [name, image_url, description || null]
+      'INSERT INTO Categories(name, image_url, image_file_path, description) VALUES ($1, $2, $3, $4) RETURNING id',
+      [name, imgUrlVal, imgFileVal, description || null]
     );
     res.status(201).json({ id: rows[0].id });
   } catch (err) {
@@ -86,6 +80,7 @@ async function createCategoria(req, res) {
 async function updateCategoria(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error('Validación fallida en updateCategoria:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
@@ -97,32 +92,56 @@ async function updateCategoria(req, res) {
   }
 
   try {
-    // Mapear valores no enviados a null para usar COALESCE en el UPDATE
-    const nameVal = typeof name === 'undefined' ? null : name;
-    const imgVal = typeof image_url === 'undefined' ? null : image_url;
-    const descVal = typeof description === 'undefined' ? null : (description || null);
+    const idNum = Number(id);
+    if (!Number.isInteger(idNum) || idNum <= 0) {
+      return res.status(400).json({ error: 'ID invalido' });
+    }
 
-    await query(
-      `UPDATE Categories
-          SET name = COALESCE($1, name),
-              -- Si llega una URL http(s), guardamos en image_url; si es ruta, guardamos en image_file_path
-              image_url = CASE
-                            WHEN $2 IS NULL THEN image_url
-                            WHEN $2 ~* '^(https?://)' THEN $2
-                            ELSE NULL
-                          END,
-              image_file_path = CASE
-                                  WHEN $2 IS NULL THEN image_file_path
-                                  WHEN $2 ~* '^(https?://)' THEN image_file_path
-                                  ELSE $2
-                                END,
-              description = COALESCE($3, description),
-              updated_at = CURRENT_TIMESTAMP
-        WHERE id = $4`,
-      [nameVal, imgVal, descVal, id]
-    );
+    // Obtener valores actuales para decidir imagen
+    const current = await query('SELECT image_url, image_file_path FROM Categories WHERE id = $1', [idNum]);
+    if (current.rowCount === 0) {
+      return res.status(404).json({ error: 'Categoria no encontrada' });
+    }
+    const cur = current.rows[0];
+
+    // Decidir destino de imagen
+    let newImageUrl = cur.image_url || null;
+    let newImageFile = cur.image_file_path || null;
+    if (typeof image_url !== 'undefined') {
+      const v = String(image_url ?? '').trim();
+      if (v) {
+        if (/^https?:\/\//i.test(v)) {
+          newImageUrl = v;
+          newImageFile = null;
+        } else {
+          newImageUrl = null;
+          newImageFile = v;
+        }
+      }
+      // si v es vacío: conservar actuales
+    }
+
+    // Construir UPDATE dinámico para solo tocar campos provistos + imagen/updated_at
+    const sets = [];
+    const params = [];
+    let p = 1;
+    if (typeof name !== 'undefined') { sets.push(`name = $${p++}`); params.push(name); }
+    if (typeof description !== 'undefined') { sets.push(`description = $${p++}`); params.push(description || null); }
+    sets.push(`image_url = $${p++}`); params.push(newImageUrl);
+    sets.push(`image_file_path = $${p++}`); params.push(newImageFile);
+    sets.push('updated_at = CURRENT_TIMESTAMP');
+    params.push(idNum);
+
+    const sql = `UPDATE Categories SET ${sets.join(', ')} WHERE id = $${p} RETURNING id`;
+    const result = await query(sql, params);
+    if (!result.rowCount) {
+      return res.status(404).json({ error: 'Categoria no encontrada' });
+    }
     res.json({ message: 'Categoría actualizada correctamente' });
   } catch (err) {
+    if (err && err.code === '23505') {
+      return res.status(409).json({ error: 'El nombre de la categoria ya existe' });
+    }
     console.error('Error al actualizar categoría:', err);
     res.status(500).json({ error: 'No se pudo actualizar la categoría' });
   }
@@ -151,3 +170,5 @@ module.exports = {
   updateCategoria: [...validateCategoryUpdate, updateCategoria],
   deleteCategoria
 };
+
+

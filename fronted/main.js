@@ -4,8 +4,9 @@
 (() => {
   // CONFIGURACIÓN CRÍTICA:
   // Si tu backend no está en http://localhost:3000, ¡CAMBIA ESTA LÍNEA!
-  const DEFAULT_API_BASE = 'http://localhost:3000'; 
-  const API_ORIGIN = (window.API_BASE_URL || DEFAULT_API_BASE);
+  const __host = window.location.hostname;
+  const __isLocal = ['localhost', '127.0.0.1', '::1'].includes(__host) || window.location.origin.startsWith('file:');
+  const API_ORIGIN = __isLocal ? 'http://localhost:3000' : window.location.origin;
   const API_BASE = API_ORIGIN + '/api';
 
   // Simple state
@@ -608,12 +609,11 @@
     const productGridContainer = $('#product-grid-container');
 
     if (categoryCardsContainer) {
-        // Renderizar las tarjetas visuales de categorías
-        const categoriesWithProducts = state.categories.filter(category => 
-            state.products.some(p => String(getProductCategoryId(p)) === String(category.id))
-        );
-        
-        categoryCardsContainer.innerHTML = categoriesWithProducts.map(renderCategoryCard).join('');
+        // Renderizar las tarjetas visuales de categorías (todas las categorías, tengan o no productos)
+        const categoriesToShow = state.categories;
+        categoryCardsContainer.innerHTML = (categoriesToShow.length
+          ? categoriesToShow.map(renderCategoryCard).join('')
+          : '<div class="category-card bg-gray-900 h-64 rounded-xl flex items-center justify-center text-gray-500">No hay categorías disponibles.</div>');
     }
 
 

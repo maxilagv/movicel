@@ -10,6 +10,11 @@ services:
       cp -R ../../fronted/* ./public/
       # Configura el frontend para apuntar al mismo origen del backend en producción
       echo "window.API_BASE_URL=window.location.origin;" > ./public/config.js
+      # Copia panel de admin y login (opcional) para usar el mismo backend
+      cp ../admin.html ./public/ 2>/dev/null || true
+      cp ../admin.js ./public/ 2>/dev/null || true
+      cp ../login.html ./public/ 2>/dev/null || true
+      cp ../login.js ./public/ 2>/dev/null || true
     startCommand: |
       npm run migrate && npm start
     autoDeploy: true

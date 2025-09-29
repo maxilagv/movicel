@@ -1,7 +1,7 @@
 (() => {
-  const BASE_CANDIDATES = [];
-  if (window.API_BASE_URL) BASE_CANDIDATES.push(String(window.API_BASE_URL));
-  BASE_CANDIDATES.push('http://127.0.0.1:3000', 'http://localhost:3000');
+  const __host = window.location.hostname;
+  const __isLocal = ['localhost', '127.0.0.1', '::1'].includes(__host) || window.location.origin.startsWith('file:');
+  const BASE_CANDIDATES = [ __isLocal ? 'http://localhost:3000' : window.location.origin ];
   let currentBaseIdx = 0;
   function getBase() { return BASE_CANDIDATES[currentBaseIdx] + '/api'; }
 
@@ -54,7 +54,11 @@
     let data = null;
     try { data = await res.json(); } catch (_) { data = null; }
     if (!res.ok) {
-      const msg = (data && (data.error || data.message)) || `Error ${res.status}`;
+      let msg = (data && (data.error || data.message)) || `Error ${res.status}`;
+      if (!data?.error && Array.isArray(data?.errors) && data.errors.length) {
+        const first = data.errors[0];
+        if (first?.msg) msg = first.msg;
+      }
       throw new Error(msg);
     }
     return data;

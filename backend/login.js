@@ -1,5 +1,8 @@
 (() => {
-  const API_BASE = (window.API_BASE_URL || 'http://localhost:3000') + '/api';
+  const __host = window.location.hostname;
+  const __isLocal = ['localhost', '127.0.0.1', '::1'].includes(__host) || window.location.origin.startsWith('file:');
+  const API_ORIGIN = __isLocal ? 'http://localhost:3000' : window.location.origin;
+  const API_BASE = API_ORIGIN + '/api';
 
   const form = document.getElementById('login-form');
   const usernameInput = document.getElementById('username');
