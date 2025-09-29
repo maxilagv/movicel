@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Panel Admin movicel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 2px solid #7c3aed;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e2e8f0;
+            letter-spacing: 0.5px;
+        }
+        
+        .logo p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+        
+        .input-group i {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .remember {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember input {
+            margin-right: 8px;
+            accent-color: #7c3aed;
+        }
+        
+        .forgot a {
+            color: #7c3aed;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot a:hover {
+            color: #6ee7b7;
+            text-decoration: underline;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #7c3aed 0%, #6ee7b7 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 10px;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-3px);
+            background: rgba(124, 58, 237, 0.2);
+            color: #7c3aed;
+        }
+        
+        .register-link {
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .register-link a {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .register-link a:hover {
+            color: #6ee7b7;
+            text-decoration: underline;
+        }
+        
+        /* Efectos de partículas de fondo */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            background: linear-gradient(145deg, #7c3aed, #6ee7b7);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100vw) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 15px;
+            }
+            
+            .login-card {
+                padding: 30px 20px;
+            }
+            
+            .logo img {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .logo h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Partículas de fondo -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <img src="https://i.postimg.cc/nLXcWcRQ/Captura-de-pantalla-2025-09-17-184018.png" alt="Ensintonía Logo">
+                <h1>Panel de Administración</h1>
+                <p>Ingresa a tu cuenta para continuar</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Email</label>
+                    <input type="email" id="username" placeholder="Ingresa tu email" autocomplete="username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <div class="remember-forgot">
+                    <div class="remember">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Recordarme</label>
+                    </div>
+                    <div class="forgot">
+                        <a href="#">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login">Iniciar Sesión</button>
+                
+                <div class="divider">o continúa con</div>
+                
+                <div class="social-login">
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-microsoft"></i>
+                    </button>
+                    <button type="button" class="social-btn">
+                        <i class="fab fa-apple"></i>
+                    </button>
+                </div>
+                
+                <div class="register-link">
+                    ¿No tienes una cuenta? <a href="#">Solicitar acceso</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="login.js" defer></script>
+  </body>
+</html>
