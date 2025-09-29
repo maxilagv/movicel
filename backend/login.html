@@ -341,6 +341,12 @@
         </div>
     </div>
 
+    <script>
+      (function () {
+        const isDevStatic = /(:5500|:5501)$/.test(location.host);
+        window.API_BASE_URL = isDevStatic ? 'http://localhost:3000' : window.location.origin;
+      })();
+    </script>
     <script src="login.js" defer></script>
   </body>
 </html>

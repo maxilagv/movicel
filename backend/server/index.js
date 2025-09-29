@@ -36,6 +36,25 @@ app.use(helmet({
   referrerPolicy: { policy: 'no-referrer' }
 }));
 
+// Construir lista de connectSrc para CSP dinámicamente desde entornos permitidos
+const cspConnectSrc = (() => {
+  const set = new Set([
+    "'self'",
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5500',
+    'http://127.0.0.1:5501',
+  ]);
+  const add = (v) => { if (v && typeof v === 'string') set.add(v.trim()); };
+  if (process.env.CORS_ALLOWED_ORIGINS) {
+    process.env.CORS_ALLOWED_ORIGINS.split(',').map(s => s.trim()).forEach(origin => {
+      try { add(new URL(origin).origin); } catch (_) {}
+    });
+  }
+  if (process.env.PUBLIC_ORIGIN) add(process.env.PUBLIC_ORIGIN);
+  return Array.from(set);
+})();
+
 // Configuración de Content Security Policy (CSP)
 app.use(
   helmet.contentSecurityPolicy({
@@ -44,8 +63,8 @@ app.use(
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://www.gstatic.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:", "https://placehold.co", "https://cdn.prod.website-files.com"],
-      // Las directivas de connectSrc relacionadas con Firestore se eliminan
-      connectSrc: ["'self'", "http://localhost:3000", "http://127.0.0.1:3000", "http://127.0.0.1:5500", "http://127.0.0.1:5501"], 
+      // Endpoints permitidos para fetch/XHR/WebSocket
+      connectSrc: cspConnectSrc,
       fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -60,6 +79,7 @@ const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS
   : [
       'http://localhost:8080',
       'https://tu-dominio-de-administracion.com',
+      'https://tu-backend.onrender.com',
       'http://127.0.0.1:5500',
       'http://127.0.0.1:5501',
       'http://localhost:3000',

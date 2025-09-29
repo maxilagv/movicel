@@ -4,10 +4,11 @@
 (() => {
   // CONFIGURACIÓN CRÍTICA:
   // Si tu backend no está en http://localhost:3000, ¡CAMBIA ESTA LÍNEA!
-  const __host = window.location.hostname;
-  const __isLocal = ['localhost', '127.0.0.1', '::1'].includes(__host) || window.location.origin.startsWith('file:');
-  const API_ORIGIN = __isLocal ? 'http://localhost:3000' : window.location.origin;
-  const API_BASE = API_ORIGIN + '/api';
+  const isDevStatic = /(:5500|:5501)$/.test(location.host);
+  const API_ORIGIN = window.API_BASE_URL
+    ? String(window.API_BASE_URL)
+    : (isDevStatic ? 'http://localhost:3000' : window.location.origin);
+  const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
 
   // Simple state
   const state = {

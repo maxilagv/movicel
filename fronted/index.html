@@ -232,5 +232,11 @@
     <script src="config.js"></script>
     <!-- Script de la lógica principal -->
     <script src="main.js"></script>
+    <script>
+      (function () {
+        const isDevStatic = /(:5500|:5501)$/.test(location.host);
+        window.API_BASE_URL = isDevStatic ? 'http://localhost:3000' : window.location.origin;
+      })();
+    </script>
 </body>
 </html>

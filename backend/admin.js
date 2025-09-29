@@ -1,9 +1,12 @@
 (() => {
-  const __host = window.location.hostname;
-  const __isLocal = ['localhost', '127.0.0.1', '::1'].includes(__host) || window.location.origin.startsWith('file:');
-  const BASE_CANDIDATES = [ __isLocal ? 'http://localhost:3000' : window.location.origin ];
+  const BASE_CANDIDATES = [];
+  const isDevStatic = /(:5500|:5501)$/.test(location.host);
+  const origin = location.origin && location.origin.startsWith('http') ? location.origin : null;
+  if (window.API_BASE_URL) BASE_CANDIDATES.push(String(window.API_BASE_URL));
+  if (origin && !isDevStatic) BASE_CANDIDATES.push(origin);
+  BASE_CANDIDATES.push('http://127.0.0.1:3000', 'http://localhost:3000');
   let currentBaseIdx = 0;
-  function getBase() { return BASE_CANDIDATES[currentBaseIdx] + '/api'; }
+  function getBase() { return BASE_CANDIDATES[currentBaseIdx].replace(/\/$/, '') + '/api'; }
 
   // Auth helpers
   const getAccess = () => sessionStorage.getItem('accessToken');

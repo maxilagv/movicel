@@ -1,8 +1,10 @@
 (() => {
-  const __host = window.location.hostname;
-  const __isLocal = ['localhost', '127.0.0.1', '::1'].includes(__host) || window.location.origin.startsWith('file:');
-  const API_ORIGIN = __isLocal ? 'http://localhost:3000' : window.location.origin;
-  const API_BASE = API_ORIGIN + '/api';
+  const isDevStatic = /(:5500|:5501)$/.test(location.host);
+  const origin = location.origin && location.origin.startsWith('http') ? location.origin : null;
+  const API_ORIGIN = window.API_BASE_URL
+    ? String(window.API_BASE_URL)
+    : (origin && !isDevStatic ? origin : 'http://localhost:3000');
+  const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
 
   const form = document.getElementById('login-form');
   const usernameInput = document.getElementById('username');
