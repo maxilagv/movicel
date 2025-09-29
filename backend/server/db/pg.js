@@ -3,16 +3,20 @@ require('dotenv').config();
 
 // Prefer DATABASE_URL, else build from PG* env vars
 const connectionString = process.env.DATABASE_URL;
+const shouldUseSSL = process.env.PGSSL === 'true' || (connectionString && /[?&]sslmode=require/i.test(connectionString));
 
 const pool = connectionString
-  ? new Pool({ connectionString, ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : undefined })
+  ? new Pool({
+      connectionString,
+      ssl: shouldUseSSL ? { rejectUnauthorized: false } : undefined,
+    })
   : new Pool({
       host: process.env.PGHOST || 'localhost',
       port: Number(process.env.PGPORT || 5432),
       database: process.env.PGDATABASE || 'postgres',
       user: process.env.PGUSER,
       password: process.env.PGPASSWORD,
-      ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : undefined,
+      ssl: shouldUseSSL ? { rejectUnauthorized: false } : undefined,
     });
 
 async function query(text, params) {

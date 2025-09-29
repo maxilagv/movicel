@@ -456,6 +456,14 @@
             display: block;
         }
     </style>
+    <script>
+      (function () {
+        const isDevStatic = /(:5500|:5501)$/.test(location.host);
+        window.API_BASE_URL = isDevStatic
+          ? 'http://localhost:3000'
+          : window.location.origin; // producción: mismo origen (Render)
+      })();
+    </script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -803,12 +811,6 @@
         </div>
     </div>
 
-    <script>
-      (function () {
-        const isDevStatic = /(:5500|:5501)$/.test(location.host);
-        window.API_BASE_URL = isDevStatic ? 'http://localhost:3000' : window.location.origin;
-      })();
-    </script>
-    <script src="admin.js"></script>
+    <script src="admin.js" defer></script>
   </body>
 </html>
