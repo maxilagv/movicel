@@ -267,21 +267,29 @@
             .login-container {
                 padding: 15px;
             }
-            
+
             .login-card {
                 padding: 30px 20px;
             }
-            
+
             .logo img {
                 width: 70px;
                 height: 70px;
             }
-            
+
             .logo h1 {
                 font-size: 22px;
             }
         }
     </style>
+    <script>
+        (function () {
+            const isDevStatic = /(:5500|:5501)$/.test(location.host);
+            window.API_BASE_URL = isDevStatic
+                ? 'http://localhost:3000'
+                : window.location.origin; // producción: mismo origen (Render)
+        })();
+    </script>
 </head>
 <body>
     <!-- Partículas de fondo -->
@@ -340,13 +348,6 @@
             </form>
         </div>
     </div>
-
-    <script>
-      (function () {
-        const isDevStatic = /(:5500|:5501)$/.test(location.host);
-        window.API_BASE_URL = isDevStatic ? 'http://localhost:3000' : window.location.origin;
-      })();
-    </script>
     <script src="login.js" defer></script>
   </body>
 </html>

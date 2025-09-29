@@ -1,11 +1,11 @@
-(() => {
-  const isDevStatic = /(:5500|:5501)$/.test(location.host);
-  const origin = location.origin && location.origin.startsWith('http') ? location.origin : null;
-  const API_ORIGIN = window.API_BASE_URL
-    ? String(window.API_BASE_URL)
-    : (origin && !isDevStatic ? origin : 'http://localhost:3000');
-  const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
+const isDevStatic = /(:5500|:5501)$/.test(location.host);
+const origin = location.origin && location.origin.startsWith('http') ? location.origin : null;
+const API_ORIGIN = window.API_BASE_URL
+  ? String(window.API_BASE_URL)
+  : (origin && !isDevStatic ? origin : 'http://localhost:3000');
+const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
 
+(() => {
   const form = document.getElementById('login-form');
   const usernameInput = document.getElementById('username');
   const passwordInput = document.getElementById('password');

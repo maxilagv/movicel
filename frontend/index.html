@@ -88,6 +88,14 @@
         .product-card, .category-card { backface-visibility: hidden; transform: translateZ(0); transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease, border-color .3s ease; }
         .product-card:hover, .category-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 50px rgba(20,184,166,0.12), 0 10px 20px rgba(0,0,0,.35); border-color: rgba(45,212,191,.5) !important; }
     </style>
+    <script>
+      (function () {
+        const isDevStatic = /(:5500|:5501)$/.test(location.host);
+        window.API_BASE_URL = isDevStatic
+          ? 'http://localhost:3000'
+          : window.location.origin; // producción: mismo origen (Render)
+      })();
+    </script>
 </head>
 <body class="bg-gray-900">
     <!-- Fondo animado -->
@@ -229,14 +237,8 @@
     </footer>
 
     <!-- Config opcional inyectada en despliegue (define window.API_BASE_URL) -->
-    <script src="config.js"></script>
+    <script src="config.js" defer></script>
     <!-- Script de la lógica principal -->
-    <script src="main.js"></script>
-    <script>
-      (function () {
-        const isDevStatic = /(:5500|:5501)$/.test(location.host);
-        window.API_BASE_URL = isDevStatic ? 'http://localhost:3000' : window.location.origin;
-      })();
-    </script>
+    <script src="main.js" defer></script>
 </body>
 </html>

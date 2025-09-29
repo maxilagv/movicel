@@ -22,7 +22,7 @@ const app = express();
 
 // Confiar en el proxy (cuando se usa detrás de CDN/Reverse Proxy)
 if (process.env.TRUST_PROXY === 'true') {
-  app.set('trust proxy', 1);
+  app.set('trust proxy', true);
 }
 
 // Puerto del servidor, obtenido de las variables de entorno o por defecto 3000
@@ -75,34 +75,27 @@ app.use(
 
 // Lista de orígenes permitidos para CORS (desde .env o por defecto)
 const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : [
       'http://localhost:8080',
-      'https://tu-dominio-de-administracion.com',
-      'https://tu-backend.onrender.com',
       'http://127.0.0.1:5500',
       'http://127.0.0.1:5501',
       'http://localhost:3000',
       'http://127.0.0.1:3000'
     ]);
-const allowedOriginsSet = new Set(allowedOrigins);
-// Modo permisivo para demos/despliegues, si se configura
-const corsAllowAll = process.env.CORS_ALLOW_ALL === 'true' || process.env.CORS_ALLOWED_ORIGINS === '*';
+const allowedOriginsSet = new Set(allowedOrigins.filter(Boolean));
 
 // Configuración de CORS
 app.use(cors({
-  origin: corsAllowAll
-    ? true
-    : function (origin, callback) {
-        if (!origin) return callback(null, true); // requests same-origin o curl sin origin
-        if (allowedOriginsSet.has(origin)) {
-          return callback(null, true);
-        }
-        if (process.env.NODE_ENV !== 'production') {
-          console.error(`CORS: Origen no permitido: ${origin}`);
-        }
-        return callback(new Error('No permitido por CORS'));
-      },
+  origin(origin, callback) {
+    if (!origin || allowedOriginsSet.has(origin)) {
+      return callback(null, true);
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`CORS: Origen no permitido: ${origin}`);
+    }
+    return callback(new Error('No permitido por CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false,

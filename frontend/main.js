@@ -1,15 +1,16 @@
 // Frontend -> Backend integration for Tecnocel
 // Loads categories and products from the API and renders them.
 
-(() => {
-  // CONFIGURACIÓN CRÍTICA:
-  // Si tu backend no está en http://localhost:3000, ¡CAMBIA ESTA LÍNEA!
-  const isDevStatic = /(:5500|:5501)$/.test(location.host);
-  const API_ORIGIN = window.API_BASE_URL
-    ? String(window.API_BASE_URL)
-    : (isDevStatic ? 'http://localhost:3000' : window.location.origin);
-  const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
+const BASE_CANDIDATES = [];
+const isDevStatic = /(:5500|:5501)$/.test(location.host);
+const origin = location.origin && location.origin.startsWith('http') ? location.origin : null;
+if (window.API_BASE_URL) BASE_CANDIDATES.push(String(window.API_BASE_URL));
+if (origin && !isDevStatic) BASE_CANDIDATES.push(origin);
+BASE_CANDIDATES.push('http://127.0.0.1:3000', 'http://localhost:3000');
+const API_ORIGIN = BASE_CANDIDATES.find(Boolean) || 'http://localhost:3000';
+const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
 
+(() => {
   // Simple state
   const state = {
     categories: [],
