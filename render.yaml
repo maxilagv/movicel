@@ -1,13 +1,13 @@
 services:
   - type: web
-    name: tecnocel-backend
+    name: movicel-backend
     env: node
     plan: free
     rootDir: backend/server
     buildCommand: |
       npm ci
       mkdir -p public
-      cp -R ../../fronted/* ./public/
+      cp -R ../../frontend/* ./public/
       # Configura el frontend para apuntar al mismo origen del backend en producción
       echo "window.API_BASE_URL=window.location.origin;" > ./public/config.js
       # Copia panel de admin y login (opcional) para usar el mismo backend
@@ -33,6 +33,12 @@ services:
         value: "true"
       - key: DB_MIGRATIONS_DIR
         value: ../database/migrations
+      - key: CLOUDINARY_CLOUD_NAME 
+        value: "TEMPORAL_DUMMY_NAME"
+      - key: CLOUDINARY_API_KEY    
+        value: "TEMPORAL_DUMMY_KEY"
+      - key: CLOUDINARY_API_SECRET 
+        value: "TEMPORAL_DUMMY_SECRET"
 
 databases:
   - name: tecnocel-db
