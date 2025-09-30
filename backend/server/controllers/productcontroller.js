@@ -22,8 +22,8 @@ async function getProducts(req, res) {
     );
     res.json(rows);
   } catch (err) {
-    console.error('Error fetching products:', err);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    console.error("Error en getProducts:", err); // <-- agregar este log
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 }
 
@@ -177,4 +177,3 @@ module.exports = {
   updateProduct: [...validateProduct, updateProduct],
   deleteProduct
 };
-
