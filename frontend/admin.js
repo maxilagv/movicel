@@ -9,9 +9,9 @@
   function getBase() { return BASE_CANDIDATES[currentBaseIdx].replace(/\/$/, '') + '/api'; }
 
   // Auth helpers
-  const getAccess = () => sessionStorage.getItem('accessToken');
-  const getRefresh = () => sessionStorage.getItem('refreshToken');
-  const setAccess = (t) => sessionStorage.setItem('accessToken', t);
+  const getAccess = () => localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+  const getRefresh = () => localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
+  const setAccess = (t) => { try { localStorage.setItem('accessToken', t); } catch (_) { sessionStorage.setItem('accessToken', t); } };
 
   // In-memory caches for edit prefill
   let categoriesCache = [];
@@ -171,8 +171,8 @@
         if (window.confirm('¿Estás seguro que deseas cerrar sesión?')) {
           try { await apiFetch('/logout', { method: 'POST' }); } catch (_) {}
           try {
-            sessionStorage.removeItem('accessToken');
-            sessionStorage.removeItem('refreshToken');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
           } catch (_) {}
           window.location.href = 'login.html';
         }

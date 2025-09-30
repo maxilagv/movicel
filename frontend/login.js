@@ -95,9 +95,9 @@
       verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
       try {
         const data = await postJSON(`${API_BASE}/login-step2`, { txId, code });
-        // Store tokens in sessionStorage
-        if (data?.accessToken) sessionStorage.setItem('accessToken', data.accessToken);
-        if (data?.refreshToken) sessionStorage.setItem('refreshToken', data.refreshToken);
+        // Store tokens in localStorage
+        if (data?.accessToken) localStorage.setItem('accessToken', data.accessToken);
+        if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
         window.location.href = 'admin.html';
       } catch (err) {
         showError(err.message || 'Error al verificar el código.');
