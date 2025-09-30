@@ -6,6 +6,7 @@ const { check, validationResult } = require('express-validator'); // Importar ex
 // Rutas corregidas para los middlewares
 const { sendSMSNotification, failedLoginAttempts, FAILED_LOGIN_THRESHOLD } = require('../middlewares/security.js');
 const { SECRET, REFRESH_SECRET, addTokenToBlacklist } = require('../middlewares/authmiddleware.js');
+const { sendVerificationEmail } = require('../utils/mailer');
 
 const JWT_ALG = process.env.JWT_ALG || 'HS256';
 const JWT_ISSUER = process.env.JWT_ISSUER;
@@ -197,7 +198,7 @@ async function loginStep1(req, res) {
   // Crear transacción y enviar OTP
   const { txId, code } = newTransaction(email);
   try {
-    await sendOtpEmail(email, code);
+    await sendVerificationEmail(email, code);
   } catch (e) {
     console.error('Error enviando OTP por email:', e.message);
     return res.status(500).json({ error: 'No se pudo enviar el código de verificación.' });
