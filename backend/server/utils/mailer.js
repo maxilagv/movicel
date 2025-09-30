@@ -1,27 +1,33 @@
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
-// Transporter configurado para SendGrid usando API Key
-const transporter = nodemailer.createTransport({
-  service: "SendGrid",
-  auth: {
-    user: "apikey", // literal, no se cambia
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+const API_KEY = process.env.SENDGRID_API_KEY;
+if (API_KEY) {
+  sgMail.setApiKey(API_KEY);
+}
 
-async function sendVerificationEmail(to, code) {
+function resolveFrom() {
   const fromEmail = process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM_EMAIL;
   const fromName = process.env.SENDGRID_FROM_NAME || process.env.SMTP_FROM_NAME || "Seguridad Tecnocel";
-  const from = fromEmail ? `${fromName} <${fromEmail}>` : undefined;
+  if (!fromEmail) return null;
+  return `${fromName} <${fromEmail}>`;
+}
 
-  return transporter.sendMail({
-    from: from || "no-reply@example.com", // tu remitente verificado en SendGrid
+async function sendVerificationEmail(to, code) {
+  if (!API_KEY) {
+    throw new Error("SENDGRID_API_KEY no configurado");
+  }
+  const from = resolveFrom();
+  if (!from) {
+    throw new Error("SENDGRID_FROM_EMAIL no configurado");
+  }
+  const msg = {
     to,
+    from,
     subject: "Código de verificación",
     text: `Tu código es: ${code}`,
     html: `<p>Tu código es: <b>${code}</b></p>`,
-  });
+  };
+  return sgMail.send(msg);
 }
 
 module.exports = { sendVerificationEmail };
-
