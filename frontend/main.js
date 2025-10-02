@@ -337,7 +337,7 @@
         specsRendered = true;
       } else if (Array.isArray(possibleSpecs)) {
         const ul = document.createElement('ul');
-        ul.className = 'list-disc pl-6 space-y-1 text-gray-300';
+        ul.className = 'space-y-2 mt-3';
         possibleSpecs.forEach(item => {
           let label = '';
           let value = '';
@@ -348,7 +348,9 @@
             value = item.value || item.val || item.descripcion || '';
           }
           const li = document.createElement('li');
-          li.innerHTML = label ? `<span class="text-gray-400">${label}:</span> ${decodeEntities(String(value || ''))}` : decodeEntities(String(value || label || ''));
+          li.className = 'flex items-center text-gray-300';
+          const content = label ? `<span class=\"text-gray-400\">${label}:</span> ${decodeEntities(String(value || ''))}` : decodeEntities(String(value || label || ''));
+          li.innerHTML = `<span class=\"text-teal-400 mr-2\">✔</span>${content}`;
           ul.appendChild(li);
         });
         if (ul.childNodes.length) {
@@ -478,10 +480,10 @@
       if (!toast) {
           toast = document.createElement('div');
           toast.id = 'temp-message';
-          toast.className = 'fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-teal-600 text-gray-900 px-6 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 z-[200] font-semibold';
+          toast.className = 'fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-teal-400 to-cyan-400 text-gray-900 px-6 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 z-[200] font-semibold';
           document.body.appendChild(toast);
       }
-      toast.textContent = message;
+      toast.innerHTML = `✅ ${message}`;
       toast.style.opacity = '1';
       
       clearTimeout(toast.timer);
@@ -498,6 +500,10 @@
    */
   function renderProductCard(product) {
     const imageUrl = getSafeImageUrl(product.image_url || product.imageUrl, 'https://placehold.co/400x300/1f2937/d1d5db?text=Sin+Imagen');
+    const stockQty = Number.isFinite(Number(product.stock)) ? Number(product.stock) : Number(product.stock_quantity || 0);
+    const inStock = stockQty > 0;
+    const stockBadge = `<span class="absolute top-2 left-2 px-2.5 py-1 rounded-full text-xs font-semibold ${inStock ? 'bg-green-500 text-gray-900' : 'bg-red-500 text-white'}">${inStock ? 'En stock' : 'Agotado'}</span>`;
+    const btnDisabledAttr = inStock ? '' : 'disabled';
 
     // Obtenemos un fragmento de la descripción para mostrar en la tarjeta
     const shortDescription = product.description 
@@ -506,7 +512,8 @@
 
     return `
       <div class="product-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col hover:border-teal-500 transition-all duration-300">
-        <div class="h-48 overflow-hidden">
+        <div class="relative h-48 overflow-hidden">
+            ${stockBadge}
             <img 
                 src="${imageUrl}" 
                 alt="${product.name}" 
@@ -530,7 +537,7 @@
             <button 
               class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold py-2 px-4 rounded-full transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed w-full sm:w-auto" 
               data-id="${product.id}"
-              ${product.stock <= 0 ? 'disabled' : ''}
+              ${btnDisabledAttr}
             >
               Agregar
             </button>
