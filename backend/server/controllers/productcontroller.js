@@ -18,6 +18,7 @@ async function getProducts(req, res) {
               p.deleted_at
          FROM Products p
          JOIN Categories c ON c.id = p.category_id
+        WHERE p.deleted_at IS NULL AND c.deleted_at IS NULL
         ORDER BY p.id DESC`
     );
     res.json(rows);
@@ -32,21 +33,18 @@ const validateProduct = [
   check('name')
     .trim()
     .notEmpty().withMessage('Name is required')
-    .isLength({ min: 3, max: 100 }).withMessage('Name must be 3-100 chars')
-    .escape(),
+    .isLength({ min: 3, max: 100 }).withMessage('Name must be 3-100 chars'),
   check('description')
     .trim()
     .notEmpty().withMessage('Description is required')
-    .isLength({ min: 10, max: 500 }).withMessage('Description must be 10-500 chars')
-    .escape(),
+    .isLength({ min: 10, max: 500 }).withMessage('Description must be 10-500 chars'),
   check('price')
     .notEmpty().withMessage('Price is required')
     .isFloat({ min: 0.01 }).withMessage('Price must be a positive number'),
   check('image_url')
     .trim()
     .notEmpty().withMessage('Image URL is required')
-    .isURL().withMessage('Image URL must be valid')
-    .escape(),
+    .isURL().withMessage('Image URL must be valid'),
   check('category_id')
     .notEmpty().withMessage('category_id is required')
     .isInt({ min: 1 }).withMessage('category_id must be an integer >= 1'),

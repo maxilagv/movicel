@@ -1,5 +1,5 @@
 const { check, validationResult } = require('express-validator');
-const { query } = require('../db/pg');
+const { query, withTransaction } = require('../db/pg');
 
 // Obtener categorías (estandarizado en inglés)
 async function getCategorias(req, res) {
@@ -10,6 +10,7 @@ async function getCategorias(req, res) {
               COALESCE(image_url, image_file_path) AS image_url,
               description
          FROM Categories
+        WHERE deleted_at IS NULL
         ORDER BY name ASC`
     );
     res.json(rows);
@@ -156,7 +157,31 @@ async function deleteCategoria(req, res) {
   }
 
   try {
-    await query('DELETE FROM Categories WHERE id = $1', [id]);
+    const idNum = Number(id);
+    if (!Number.isInteger(idNum) || idNum <= 0) {
+      return res.status(400).json({ error: 'ID invalido' });
+    }
+    await withTransaction(async (client) => {
+      await client.query(
+        `UPDATE Products
+            SET deleted_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+          WHERE category_id = $1 AND deleted_at IS NULL`,
+        [idNum]
+      );
+      const result = await client.query(
+        `UPDATE Categories
+            SET deleted_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1 AND deleted_at IS NULL`,
+        [idNum]
+      );
+      if (!result.rowCount) {
+        const e = new Error('Categoria no encontrada');
+        e.status = 404;
+        throw e;
+      }
+    });
     res.json({ message: 'Categoría eliminada correctamente' });
   } catch (err) {
     console.error('Error al eliminar categoría:', err);

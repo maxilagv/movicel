@@ -83,6 +83,15 @@
     .replace(/'/g, '&#039;');
 
   function showAlert(msg) { alert(msg); }
+  const decodeHtml = (str) => {
+    try {
+      const t = document.createElement('textarea');
+      t.innerHTML = String(str || '');
+      return t.value;
+    } catch (_) {
+      return String(str || '');
+    }
+  };
   function openModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'flex'; }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'none'; }
 
@@ -440,7 +449,7 @@
             const imgEl = document.getElementById('category-image');
             const descEl = document.getElementById('category-description');
             if (nameEl) nameEl.value = cat.name || '';
-            if (imgEl) imgEl.value = cat.image_url || '';
+            if (imgEl) imgEl.value = decodeHtml(cat.image_url || '');
             if (descEl) descEl.value = cat.description || '';
             openModal('category-modal');
           }
@@ -469,7 +478,7 @@
             if (catSel) catSel.value = String(prod.category_id || '');
             if (priceEl) priceEl.value = (Number(prod.price || 0)).toString();
             if (stockEl) stockEl.value = String(Number.isFinite(Number(prod.stock_quantity)) ? Number(prod.stock_quantity) : 0);
-            if (imgEl) imgEl.value = prod.image_url || '';
+            if (imgEl) imgEl.value = decodeHtml(prod.image_url || '');
             if (descEl) descEl.value = prod.description || '';
             if (specsEl) specsEl.value = prod.specifications || '';
             openModal('product-modal');
