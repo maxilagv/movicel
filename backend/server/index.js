@@ -73,29 +73,46 @@ app.use(
   })
 );
 
-// Lista de orígenes permitidos para CORS (desde .env o por defecto)
+// Lista de or�genes permitidos para CORS (desde .env o por defecto)
 const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
   : [
       'http://localhost:8080',
-      'https://tu-dominio-de-administracion.com',
-      'https://tu-backend.onrender.com',
       'http://127.0.0.1:5500',
       'http://127.0.0.1:5501',
       'http://localhost:3000',
       'http://127.0.0.1:3000'
     ]);
-const allowedOriginsSet = new Set(allowedOrigins);
+// Soporte de wildcard simple, p.ej.: https://*.vercel.app
+function toRegex(pattern) {
+  try {
+    if (!pattern.includes('*')) return null;
+    const escaped = pattern
+      .replace(/[.]/g, '\\.')
+      .replace(/[\/]/g, '\\/')
+      .replace(/\*/g, '.*');
+    return new RegExp('^' + escaped + '$', 'i');
+  } catch { return null; }
+}
+const allowedOriginsSet = new Set();
+const allowedOriginRegexps = [];
+for (const o of allowedOrigins) {
+  const rx = toRegex(o);
+  if (rx) allowedOriginRegexps.push(rx); else allowedOriginsSet.add(o);
+}
 // Modo permisivo para demos/despliegues, si se configura
 const corsAllowAll = process.env.CORS_ALLOW_ALL === 'true' || process.env.CORS_ALLOWED_ORIGINS === '*';
 
-// Configuración de CORS
+// Configuraci�n de CORS
 app.use(cors({
   origin: corsAllowAll
     ? true
     : function (origin, callback) {
         if (!origin) return callback(null, true); // requests same-origin o curl sin origin
         if (allowedOriginsSet.has(origin)) {
+          return callback(null, true);
+        }
+        if (allowedOriginRegexps.some(rx => rx.test(origin))) {
           return callback(null, true);
         }
         if (process.env.NODE_ENV !== 'production') {
@@ -108,8 +125,6 @@ app.use(cors({
   credentials: false,
   optionsSuccessStatus: 204
 }));
-
-// Habilitar el parsing de JSON y URL-encoded en el cuerpo de las solicitudes con un límite de 10kb
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
@@ -204,3 +219,6 @@ server.headersTimeout = headersTimeoutMs;
 
 // Exportar la aplicación para pruebas (si usas supertest)
 module.exports = app;
+
+
+
