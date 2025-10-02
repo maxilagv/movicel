@@ -15,6 +15,9 @@ async function getCategorias(req, res) {
     );
     res.json(rows);
   } catch (err) {
+    if (err && err.code === '23505') {
+      return res.status(409).json({ error: 'El nombre de la categoria ya existe' });
+    }
     console.error('Error al obtener categorías:', err);
     res.status(500).json({ error: 'No se pudo obtener categorías' });
   }
@@ -61,14 +64,39 @@ async function createCategoria(req, res) {
 
   try {
     // Decidir destino de imagen según sea URL http(s) o ruta
+    const normName = String(name || '').trim();
     const v = String(image_url || '').trim();
     const isHttpUrl = /^https?:\/\//i.test(v);
     const imgUrlVal = isHttpUrl ? v : null;
     const imgFileVal = isHttpUrl ? null : v;
 
+    // Restaurar si existe soft-deleted con el mismo nombre
+    const existing = await query(
+      'SELECT id, deleted_at FROM Categories WHERE LOWER(name) = LOWER($1) LIMIT 1',
+      [normName]
+    );
+    if (existing.rowCount) {
+      const row = existing.rows[0];
+      if (row.deleted_at) {
+        const upd = await query(
+          `UPDATE Categories
+              SET image_url = $1,
+                  image_file_path = $2,
+                  description = $3,
+                  deleted_at = NULL,
+                  updated_at = CURRENT_TIMESTAMP
+            WHERE id = $4 RETURNING id`,
+          [imgUrlVal, imgFileVal, description || null, row.id]
+        );
+        return res.status(200).json({ id: upd.rows[0].id, restored: true });
+      } else {
+        return res.status(409).json({ error: 'El nombre de la categoria ya existe' });
+      }
+    }
+
     const { rows } = await query(
       'INSERT INTO Categories(name, image_url, image_file_path, description) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, imgUrlVal, imgFileVal, description || null]
+      [normName, imgUrlVal, imgFileVal, description || null]
     );
     res.status(201).json({ id: rows[0].id });
   } catch (err) {
