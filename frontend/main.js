@@ -9,6 +9,7 @@
     ? String(window.API_BASE_URL)
     : (isDevStatic ? 'http://localhost:3000' : window.location.origin);
   const API_BASE = API_ORIGIN.replace(/\/$/, '') + '/api';
+  try { document.title = (document.title || '').replace(/Tecnocel/gi, 'Movicel'); } catch {}
 
   // Simple state
   const state = {
@@ -346,7 +347,7 @@
         ul.className = 'space-y-2 mt-3';
         items.forEach(txt => {
           const li = document.createElement('li');
-          li.className = 'flex items-center text-gray-300';
+          li.className = 'flex items-center text-gray-300 transition-transform hover:translate-x-0.5';
           li.innerHTML = `<span class=\"text-teal-400 mr-2\">✔</span>${decodeEntities(txt)}`;
           ul.appendChild(li);
         });
@@ -366,7 +367,7 @@
             value = item.value || item.val || item.descripcion || '';
           }
           const li = document.createElement('li');
-          li.className = 'flex items-center text-gray-300';
+          li.className = 'flex items-center text-gray-300 transition-transform hover:translate-x-0.5';
           const content = label ? `<span class=\"text-gray-400\">${label}:</span> ${decodeEntities(String(value || ''))}` : decodeEntities(String(value || label || ''));
           li.innerHTML = `<span class=\"text-teal-400 mr-2\">✔</span>${content}`;
           ul.appendChild(li);
@@ -383,7 +384,7 @@
           ul.className = 'space-y-2 mt-3';
           entries.forEach(([k, v]) => {
             const li = document.createElement('li');
-            li.className = 'flex items-center text-gray-300';
+            li.className = 'flex items-center text-gray-300 transition-transform hover:translate-x-0.5';
             const val = typeof v === 'string' ? v : JSON.stringify(v);
             li.innerHTML = `<span class=\"text-teal-400 mr-2\">✔</span><span class=\"text-gray-400\">${decodeEntities(k)}:</span> ${decodeEntities(val)}`;
             ul.appendChild(li);
