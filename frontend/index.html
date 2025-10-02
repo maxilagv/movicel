@@ -6,14 +6,17 @@
     <title>Tecnocel - Tienda de Tecnología</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
+    <!-- Google Fonts: Inter + Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            @apply bg-gray-900 text-white leading-relaxed overflow-x-hidden;
+            font-family: 'Outfit', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            letter-spacing: 0.01em;
         }
         .hero {
             /* Asegúrate de cambiar esta URL si tienes tu propia imagen */
@@ -45,7 +48,7 @@
     </style>
     <style>
         :root {
-            --bg-deep-1: #0b1220;
+            --bg-deep-1: #3462c0;
             --bg-deep-2: #0a1322;
             --bg-deep-3: #0e1b2b;
             --teal: #14b8a6;
@@ -89,7 +92,7 @@
         .product-card:hover, .category-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 50px rgba(20,184,166,0.12), 0 10px 20px rgba(0,0,0,.35); border-color: rgba(45,212,191,.5) !important; }
     </style>
 </head>
-<body class="bg-gray-900">
+<body class="bg-gray-900 text-white antialiased leading-relaxed overflow-x-hidden">
     <!-- Fondo animado -->
     <div id="bg-animated" aria-hidden="true"></div>
     <div id="bg-orbs" aria-hidden="true">

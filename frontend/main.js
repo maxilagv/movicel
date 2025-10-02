@@ -331,9 +331,27 @@
     let specsRendered = false;
     if (possibleSpecs) {
       if (typeof possibleSpecs === 'string') {
-        const frag = sanitizeHTMLToFragment(possibleSpecs) || document.createTextNode(possibleSpecs);
+        // Convertir cadena libre en lista de items legibles
+        const raw = decodeEntities(String(possibleSpecs || ''));
+        const normalized = raw
+          .replace(/<[^>]+>/g, ' ')        // quitar HTML
+          .replace(/[•\*\-]\s+/g, '\n') // bullets comunes -> nueva línea
+          .replace(/\s*;\s*/g, '\n')     // ; como separador
+          .replace(/\s*\|\s*/g, '\n');  // | como separador
+        const items = normalized
+          .split(/\r?\n+/)
+          .map(s => s.trim())
+          .filter(Boolean);
+        const ul = document.createElement('ul');
+        ul.className = 'space-y-2 mt-3';
+        items.forEach(txt => {
+          const li = document.createElement('li');
+          li.className = 'flex items-center text-gray-300';
+          li.innerHTML = `<span class=\"text-teal-400 mr-2\">✔</span>${decodeEntities(txt)}`;
+          ul.appendChild(li);
+        });
         detailDescription.appendChild(specsTitle);
-        detailDescription.appendChild(frag);
+        detailDescription.appendChild(ul);
         specsRendered = true;
       } else if (Array.isArray(possibleSpecs)) {
         const ul = document.createElement('ul');
@@ -361,20 +379,17 @@
       } else if (typeof possibleSpecs === 'object') {
         const entries = Object.entries(possibleSpecs);
         if (entries.length) {
-          const dl = document.createElement('dl');
-          dl.className = 'grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2';
+          const ul = document.createElement('ul');
+          ul.className = 'space-y-2 mt-3';
           entries.forEach(([k, v]) => {
-            const dt = document.createElement('dt');
-            dt.className = 'text-gray-400';
-            dt.textContent = k;
-            const dd = document.createElement('dd');
-            dd.className = 'text-gray-300';
-            dd.textContent = typeof v === 'string' ? v : JSON.stringify(v);
-            dl.appendChild(dt);
-            dl.appendChild(dd);
+            const li = document.createElement('li');
+            li.className = 'flex items-center text-gray-300';
+            const val = typeof v === 'string' ? v : JSON.stringify(v);
+            li.innerHTML = `<span class=\"text-teal-400 mr-2\">✔</span><span class=\"text-gray-400\">${decodeEntities(k)}:</span> ${decodeEntities(val)}`;
+            ul.appendChild(li);
           });
           detailDescription.appendChild(specsTitle);
-          detailDescription.appendChild(dl);
+          detailDescription.appendChild(ul);
           specsRendered = true;
         }
       }
