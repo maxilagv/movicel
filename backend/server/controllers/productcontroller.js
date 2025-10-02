@@ -161,7 +161,25 @@ async function deleteProduct(req, res) {
   }
 
   try {
-    await query('DELETE FROM Products WHERE id = $1', [id]);
+    const idNum = Number(id);
+    if (!Number.isInteger(idNum) || idNum <= 0) {
+      return res.status(400).json({ error: 'Invalid product ID' });
+    }
+
+    // Soft delete to avoid DB trigger requiring superuser privileges
+    const result = await query(
+      `UPDATE Products
+          SET deleted_at = CURRENT_TIMESTAMP,
+              updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1 AND deleted_at IS NULL`,
+      [idNum]
+    );
+
+    if (result.rowCount === 0) {
+      const check = await query('SELECT id FROM Products WHERE id = $1', [idNum]);
+      if (!check.rowCount) return res.status(404).json({ error: 'Product not found' });
+      // Already soft-deleted -> consider idempotent success
+    }
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
     console.error('Error deleting product:', err);
