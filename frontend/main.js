@@ -314,7 +314,8 @@
   }
 
   function removeFromCart(productId) {
-    const index = state.cart.findIndex(item => item.id === productId);
+    const pid = String(productId);
+    const index = state.cart.findIndex(item => String(item.id) === pid);
     if (index > -1) {
       state.cart.splice(index, 1);
       saveCart();
@@ -322,11 +323,12 @@
   }
 
   function changeCartQuantity(productId, delta) {
-    const item = state.cart.find(i => i.id === productId);
+    const pid = String(productId);
+    const item = state.cart.find(i => String(i.id) === pid);
     if (item) {
       item.qty += delta;
       if (item.qty <= 0) {
-        removeFromCart(productId);
+        removeFromCart(pid);
       } else {
         saveCart();
       }
