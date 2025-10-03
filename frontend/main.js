@@ -829,6 +829,11 @@
     return raw;
   }
 
+  function getCategoryBySlug(catSlug) {
+    if (!catSlug) return null;
+    return state.categories.find(c => slug(c.name) === String(catSlug));
+  }
+
   function readCategorySlugFromURL() {
     try {
       const u = new URL(window.location.href);
@@ -871,6 +876,48 @@
   function applyCategoryFilterFromURL() {
     const slugSel = readCategorySlugFromURL();
     filterProductSectionsBySlug(slugSel);
+    updateCategoryUIForFilter(slugSel);
+  }
+
+  function updateCategoryUIForFilter(catSlug) {
+    const cardsContainer = document.getElementById('category-cards-container');
+    const productGridContainer = document.getElementById('product-grid-container');
+    if (!productGridContainer) return;
+
+    let banner = document.getElementById('category-filter-banner');
+    if (!catSlug) {
+      if (cardsContainer) cardsContainer.style.display = '';
+      if (banner) banner.remove();
+      return;
+    }
+
+    // Hide category cards
+    if (cardsContainer) cardsContainer.style.display = 'none';
+
+    // Build banner
+    const cat = getCategoryBySlug(catSlug);
+    const catName = cat ? cat.name : catSlug;
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'category-filter-banner';
+      banner.className = 'flex items-center justify-between bg-gray-900/80 border border-teal-500/30 text-white rounded-lg px-4 py-3 mb-6';
+      productGridContainer.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `
+      <div><span class="text-gray-300">Mostrando categoría:</span> <span class="font-bold text-teal-400">${decodeEntities(catName)}</span></div>
+      <button id="clear-category-filter" class="text-sm text-gray-200 hover:text-white bg-gray-700 hover:bg-gray-600 rounded px-3 py-1">Ver todas</button>
+    `;
+    const clearBtn = banner.querySelector('#clear-category-filter');
+    clearBtn?.addEventListener('click', () => {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('categoria');
+        history.pushState({}, '', url);
+      } catch {}
+      // Show all
+      filterProductSectionsBySlug(null);
+      updateCategoryUIForFilter(null);
+    });
   }
 
   // --- FUNCIÓN PRINCIPAL DE RENDERIZADO (MODIFICADA) ---
