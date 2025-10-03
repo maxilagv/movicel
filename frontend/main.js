@@ -559,21 +559,37 @@
 
   // --- UI Interactions (Cart) ---
   cartBtn?.addEventListener('click', () => {
+    if (!cartModal) return;
     cartModal.classList.remove('hidden');
+    cartModal.setAttribute('data-visible', 'true');
     const panel = cartModal.firstElementChild;
-    if (panel) panel.setAttribute('data-visible', 'true');
+    if (panel) {
+      panel.setAttribute('data-visible', 'true');
+      // Asegura visibilidad aunque el variant de Tailwind no aplique
+      panel.classList.remove('opacity-0', 'scale-95');
+    }
   });
   
   closeCartModalBtn?.addEventListener('click', () => {
-    const panel = cartModal?.firstElementChild;
-    if (panel) panel.removeAttribute('data-visible');
+    if (!cartModal) return;
+    const panel = cartModal.firstElementChild;
+    if (panel) {
+      panel.removeAttribute('data-visible');
+      panel.classList.add('opacity-0', 'scale-95');
+    }
+    cartModal.removeAttribute('data-visible');
     cartModal.classList.add('hidden');
   });
   
   cartModal?.addEventListener('click', (e) => {
+    if (!cartModal) return;
     if (e.target === cartModal) {
       const panel = cartModal.firstElementChild;
-      if (panel) panel.removeAttribute('data-visible');
+      if (panel) {
+        panel.removeAttribute('data-visible');
+        panel.classList.add('opacity-0', 'scale-95');
+      }
+      cartModal.removeAttribute('data-visible');
       cartModal.classList.add('hidden');
     }
   });
