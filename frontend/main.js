@@ -29,6 +29,119 @@
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'general';
   const formatCurrency = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(Number(n || 0));
 
+  // Normaliza cantidad de stock a partir de distintas claves posibles del producto.
+  function getStockQty(product) {
+    if (!product || typeof product !== 'object') return 0;
+    const candidates = [product.stock, product.stock_quantity];
+    for (const v of candidates) {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return 0;
+  }
+
+  // --- Mobile menu: inject button + menu and handle toggle ---
+  try {
+    const header = document.querySelector('header');
+    const nav = header ? header.querySelector('nav') : null;
+    if (nav) {
+      // Ensure Contacto link goes to contact.html (desktop links)
+      $$('a', nav).forEach(a => {
+        const txt = (a.textContent || '').trim().toLowerCase();
+        if (txt.includes('contacto')) a.setAttribute('href', 'contact.html');
+      });
+
+      // Add hamburger styles once
+      if (!document.getElementById('hamburger-style')) {
+        const style = document.createElement('style');
+        style.id = 'hamburger-style';
+        style.textContent = `
+          .hamburger-line{position:absolute;left:0;right:0;height:2px;background:#fff;border-radius:9999px;transition:transform .25s ease,opacity .2s ease}
+          #menu-toggle.open .hamburger-line:nth-child(1){transform:translateY(8px) rotate(45deg)}
+          #menu-toggle.open .hamburger-line:nth-child(2){opacity:0}
+          #menu-toggle.open .hamburger-line:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+        `;
+        document.head.appendChild(style);
+      }
+
+      // Right-side container (cart + links)
+      let right = nav.querySelector('.flex.items-center.space-x-6');
+      if (!right) {
+        const candidates = $$('.flex.items-center', nav);
+        right = candidates[candidates.length - 1] || null;
+      }
+
+      const cartBtn = $('#cart-btn', nav);
+      if (right && cartBtn && !$('#menu-toggle', nav)) {
+        // Create hamburger button
+        const btn = document.createElement('button');
+        btn.id = 'menu-toggle';
+        btn.setAttribute('aria-label', 'Abrir menú');
+        btn.setAttribute('aria-controls', 'mobile-menu');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.className = 'md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-900';
+        btn.innerHTML = '<span class="sr-only">Abrir menú</span>' +
+          '<div class="relative w-6 h-4">' +
+          '  <span class="hamburger-line" style="top:0"></span>' +
+          '  <span class="hamburger-line" style="top:50%;transform:translateY(-50%)"></span>' +
+          '  <span class="hamburger-line" style="bottom:0"></span>' +
+          '</div>';
+
+        // Insert button right after cart
+        cartBtn.insertAdjacentElement('afterend', btn);
+
+        // Create mobile menu container if not exists
+        const headerEl = header;
+        let mobileMenu = document.getElementById('mobile-menu');
+        if (!mobileMenu && headerEl) {
+          mobileMenu = document.createElement('div');
+          mobileMenu.id = 'mobile-menu';
+          mobileMenu.className = 'md:hidden hidden border-t border-gray-800 bg-gray-900/95';
+          mobileMenu.innerHTML = '<div class="px-6 py-3 space-y-2" id="mobile-menu-items"></div>';
+          headerEl.appendChild(mobileMenu);
+        }
+
+        // Build mobile menu items from existing nav links
+        const itemsWrap = $('#mobile-menu-items');
+        if (itemsWrap) {
+          itemsWrap.innerHTML = '';
+          const links = $$('a', nav).filter(a => /productos|contacto/i.test(a.textContent || ''));
+          links.forEach(a => {
+            const clone = a.cloneNode(true);
+            clone.className = 'block text-white hover:text-teal-400 transition-colors';
+            const txt = (clone.textContent || '').toLowerCase();
+            if (txt.includes('contacto')) clone.setAttribute('href', 'contact.html');
+            itemsWrap.appendChild(clone);
+          });
+        }
+
+        // Toggle logic
+        const openMenu = () => {
+          if (!mobileMenu) return;
+          mobileMenu.classList.remove('hidden');
+          btn.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        };
+        const closeMenu = () => {
+          if (!mobileMenu) return;
+          mobileMenu.classList.add('hidden');
+          btn.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        };
+        btn.addEventListener('click', () => {
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
+          expanded ? closeMenu() : openMenu();
+        });
+        document.addEventListener('click', (e) => {
+          if (!mobileMenu) return;
+          if (!mobileMenu.contains(e.target) && !btn.contains(e.target)) closeMenu();
+        });
+        window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
+        $$('#mobile-menu a').forEach(a => a.addEventListener('click', closeMenu));
+      }
+    }
+  } catch {}
+
   // --- Safe description rendering (allow images from admin) ---
   function decodeEntities(str) {
     const txt = document.createElement('textarea');
@@ -296,8 +409,9 @@
     const imageUrl = getSafeImageUrl(product.image_url || product.imageUrl, 'https://placehold.co/800x600/1f2937/d1d5db?text=Sin+Imagen');
     detailImage.src = imageUrl;
     detailImage.alt = product.name;
-    detailStock.textContent = product.stock > 0 ? `Stock: ${product.stock}` : 'Agotado';
-    detailStock.className = `text-sm font-medium ${product.stock > 0 ? 'text-green-500' : 'text-red-500'}`;
+    const stockQty = getStockQty(product);
+    detailStock.textContent = stockQty > 0 ? `Stock: ${stockQty}` : 'Agotado';
+    detailStock.className = `text-sm font-medium ${stockQty > 0 ? 'text-green-500' : 'text-red-500'}`;
 
     // Limpiar y renderizar la descripción y especificaciones
     detailDescription.innerHTML = '';
@@ -406,8 +520,8 @@
 
     // Configurar botón de añadir al carrito en el modal
     detailAddToCartBtn.dataset.id = product.id;
-    detailAddToCartBtn.disabled = product.stock <= 0;
-    detailAddToCartBtn.textContent = product.stock <= 0 ? 'Agotado' : 'Agregar al Carrito';
+    detailAddToCartBtn.disabled = stockQty <= 0;
+    detailAddToCartBtn.textContent = stockQty <= 0 ? 'Agotado' : 'Agregar al Carrito';
 
     // Mostrar modal y activar animaciones/data-attrs para que sea visible
     detailModal.classList.remove('hidden');
@@ -516,7 +630,7 @@
    */
   function renderProductCard(product) {
     const imageUrl = getSafeImageUrl(product.image_url || product.imageUrl, 'https://placehold.co/400x300/1f2937/d1d5db?text=Sin+Imagen');
-    const stockQty = Number.isFinite(Number(product.stock)) ? Number(product.stock) : Number(product.stock_quantity || 0);
+    const stockQty = getStockQty(product);
     const inStock = stockQty > 0;
     const stockBadge = `<span class="absolute top-2 left-2 px-2.5 py-1 rounded-full text-xs font-semibold ${inStock ? 'bg-green-500 text-gray-900' : 'bg-red-500 text-white'}">${inStock ? 'En stock' : 'Agotado'}</span>`;
     const btnDisabledAttr = inStock ? '' : 'disabled';
