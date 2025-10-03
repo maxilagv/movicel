@@ -560,14 +560,20 @@
   // --- UI Interactions (Cart) ---
   cartBtn?.addEventListener('click', () => {
     cartModal.classList.remove('hidden');
+    const panel = cartModal.firstElementChild;
+    if (panel) panel.setAttribute('data-visible', 'true');
   });
-
+  
   closeCartModalBtn?.addEventListener('click', () => {
+    const panel = cartModal?.firstElementChild;
+    if (panel) panel.removeAttribute('data-visible');
     cartModal.classList.add('hidden');
   });
-
+  
   cartModal?.addEventListener('click', (e) => {
     if (e.target === cartModal) {
+      const panel = cartModal.firstElementChild;
+      if (panel) panel.removeAttribute('data-visible');
       cartModal.classList.add('hidden');
     }
   });
