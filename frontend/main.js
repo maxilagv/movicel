@@ -404,6 +404,44 @@
   const detailStock = $('#detail-stock');
   const detailAddToCartBtn = $('#detail-add-to-cart-btn');
 
+  // Related products (same category)
+  function renderRelatedProducts(baseProduct) {
+    try {
+      if (!detailModal) return;
+      const panel = detailModal.firstElementChild || detailModal;
+      if (!panel) return;
+
+      let section = panel.querySelector('#related-products-section');
+      if (!section) {
+        section = document.createElement('div');
+        section.id = 'related-products-section';
+        section.className = 'mt-10';
+        section.innerHTML = '<h3 class="text-2xl md:text-3xl font-bold text-white mb-6">Productos relacionados</h3>' +
+                            '<div id="related-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>';
+        panel.appendChild(section);
+      }
+
+      const grid = section.querySelector('#related-products-grid');
+      if (!grid) return;
+
+      const baseCat = String(getProductCategoryId(baseProduct) || '');
+      const related = state.products
+        .filter(p => String(getProductCategoryId(p)) === baseCat && String(p.id) !== String(baseProduct.id))
+        .slice(0, 6);
+
+      if (!related.length) {
+        section.classList.add('hidden');
+        grid.innerHTML = '';
+        return;
+      }
+
+      section.classList.remove('hidden');
+      grid.innerHTML = related.map(renderProductCard).join('');
+    } catch (err) {
+      console.error('Error rendering related products', err);
+    }
+  }
+
   function showProductDetail(product) {
     state.currentProduct = product;
     detailName.textContent = product.name;
@@ -524,6 +562,9 @@
     detailAddToCartBtn.dataset.id = product.id;
     detailAddToCartBtn.disabled = stockQty <= 0;
     detailAddToCartBtn.textContent = stockQty <= 0 ? 'Agotado' : 'Agregar al Carrito';
+
+    // Render related products
+    renderRelatedProducts(product);
 
     // Mostrar modal y activar animaciones/data-attrs para que sea visible
     detailModal.classList.remove('hidden');
@@ -646,6 +687,19 @@
       }, 3000);
   }
 
+  // Ensure category click sets URL filter and applies it
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.category-card');
+    if (!card) return;
+    const categorySlug = card.dataset.slug;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('categoria', categorySlug);
+      history.pushState({}, '', url);
+      applyCategoryFilterFromURL();
+    } catch {}
+  });
+
   // --- Product Rendering ---
   /**
    * Genera el HTML para una tarjeta de producto con diseño moderno.
@@ -764,6 +818,61 @@
     return null;
   }
 
+  // Category filtering via URL (?categoria=slug | id)
+  function normalizeToCategorySlug(input) {
+    const raw = String(input || '').trim().toLowerCase();
+    if (!raw) return null;
+    const bySlug = state.categories.find(c => slug(c.name) === raw);
+    if (bySlug) return slug(bySlug.name);
+    const byId = state.categories.find(c => String(c.id) === raw);
+    if (byId) return slug(byId.name);
+    return raw;
+  }
+
+  function readCategorySlugFromURL() {
+    try {
+      const u = new URL(window.location.href);
+      const v = u.searchParams.get('categoria') || u.searchParams.get('category') || u.searchParams.get('cat');
+      let val = v;
+      if (!val && window.location.hash) {
+        const m = window.location.hash.match(/categoria=([A-Za-z0-9_-]+)/i);
+        if (m) val = m[1];
+      }
+      return normalizeToCategorySlug(val);
+    } catch {
+      return null;
+    }
+  }
+
+  function filterProductSectionsBySlug(catSlug) {
+    const container = $('#product-grid-container');
+    if (!container) return;
+    const sections = $$('.category-section', container);
+    if (!sections.length) return;
+
+    if (!catSlug) {
+      sections.forEach(sec => { sec.style.display = ''; });
+      return;
+    }
+    let target = null;
+    sections.forEach(sec => {
+      const isTarget = sec.id === `cat-${catSlug}`;
+      sec.style.display = isTarget ? '' : 'none';
+      if (isTarget) target = sec;
+    });
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If slug not found, show all back
+      sections.forEach(sec => { sec.style.display = ''; });
+    }
+  }
+
+  function applyCategoryFilterFromURL() {
+    const slugSel = readCategorySlugFromURL();
+    filterProductSectionsBySlug(slugSel);
+  }
+
   // --- FUNCIÓN PRINCIPAL DE RENDERIZADO (MODIFICADA) ---
   function renderCategoriesAndProducts() {
     // 1. Renderizar las Tarjetas de Categoría al principio de la sección
@@ -834,6 +943,7 @@
 
       // Renderizar categorías (tarjetas) y secciones de productos
       renderCategoriesAndProducts();
+      applyCategoryFilterFromURL();
 
     } catch (e) {
       console.error('Error al cargar datos:', e);
@@ -904,6 +1014,8 @@
     loadCart();
     loadData();
     exposeForDebug();
+    // Apply filter on browser navigation
+    window.addEventListener('popstate', applyCategoryFilterFromURL);
 
     // Inyectar el HTML del modal de detalles (solo si no existe)
     // Deshabilitado: usamos el modal estático definido en index.html
