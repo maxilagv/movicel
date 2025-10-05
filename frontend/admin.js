@@ -17,6 +17,22 @@
   let categoriesCache = [];
   let productsCache = [];
 
+  // Update dashboard counts for products and categories
+  function updateDashboardCounts() {
+    try {
+      const prodEl = document.getElementById('total-products-count');
+      if (prodEl) {
+        const count = Array.isArray(productsCache) ? productsCache.length : 0;
+        prodEl.textContent = String(count);
+      }
+      const catEl = document.getElementById('total-categories-count');
+      if (catEl) {
+        const count = Array.isArray(categoriesCache) ? categoriesCache.length : 0;
+        catEl.textContent = String(count);
+      }
+    } catch (_) {}
+  }
+
   async function refreshAccessToken() {
     const rt = getRefresh();
     if (!rt) return false;
@@ -196,6 +212,7 @@
     categoriesCache = Array.isArray(cats) ? cats : [];
     renderCategoriesTable(categoriesCache);
     populateCategorySelect(categoriesCache);
+    updateDashboardCounts();
     return categoriesCache;
   }
 
@@ -235,6 +252,7 @@
     const products = await apiFetch('/productos', { method: 'GET' });
     productsCache = Array.isArray(products) ? products : [];
     renderProductsTable(productsCache);
+    updateDashboardCounts();
     return productsCache;
   }
 
