@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tecnocel - Tienda de TecnologÃ­a</title>
+    <title>Tecnocel - Tienda de TecnologÃƒÂ­a</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter + Outfit -->
@@ -19,7 +19,7 @@
             letter-spacing: 0.01em;
         }
         .hero {
-            /* AsegÃºrate de cambiar esta URL si tienes tu propia imagen */
+            /* AsegÃƒÂºrate de cambiar esta URL si tienes tu propia imagen */
             background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1920&ixlib=rb-4.0.3');
             background-position: center;
             background-size: cover;
@@ -37,7 +37,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Estilos especÃ­ficos para el modal de detalles, forzando scroll en el cuerpo */
+        /* Estilos especÃƒÂ­ficos para el modal de detalles, forzando scroll en el cuerpo */
         #product-detail-modal[data-visible='true'] {
             overflow-y: auto; /* Permite desplazamiento si el contenido es largo */
         }
@@ -103,7 +103,7 @@
         <span class="orb cyan"   style="top:45%; left:45%; width:140px; height:140px; animation-duration: 22s; animation-delay: .8s;"></span>
     </div>
 
-    <!-- Header y NavegaciÃ³n -->
+    <!-- Header y NavegaciÃƒÂ³n -->
     <header class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm shadow-lg">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="text-3xl font-extrabold text-teal-400">Movicel</a>
@@ -111,7 +111,7 @@
                 <a href="#categorias" class="text-white hover:text-teal-400 transition-colors hidden md:inline">Productos</a>
                 <a href="#contacto" class="text-white hover:text-teal-400 transition-colors hidden md:inline">Contacto</a>
                 
-                <!-- BotÃ³n del Carrito -->
+                <!-- BotÃƒÂ³n del Carrito -->
                 <button id="cart-btn" class="relative p-2 rounded-full bg-gray-800 hover:bg-teal-500 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -133,10 +133,10 @@
             </div>
             
             <div id="cart-items-container" class="my-4 space-y-3 max-h-80 overflow-y-auto">
-                <!-- Items del carrito se insertan aquÃ­ -->
+                <!-- Items del carrito se insertan aquÃƒÂ­ -->
             </div>
             
-            <p id="empty-cart-message" class="text-center text-gray-400 italic py-4" style="display: none;">El carrito estÃ¡ vacÃ­o.</p>
+            <p id="empty-cart-message" class="text-center text-gray-400 italic py-4" style="display: none;">El carrito estÃƒÂ¡ vacÃƒÂ­o.</p>
 
             <div class="pt-4 border-t border-gray-700">
                 <div class="flex justify-between items-center mb-4">
@@ -150,11 +150,11 @@
         </div>
     </div>
 
-    <!-- Modal de Detalles del Producto (Ãºnico) -->
+    <!-- Modal de Detalles del Producto (ÃƒÂºnico) -->
     <div id="product-detail-modal" class="hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-start justify-center pt-8 md:pt-16 p-4">
         <div class="bg-gray-800 rounded-xl shadow-3xl w-full max-w-6xl h-auto p-4 md:p-8 transform transition-all duration-500 scale-95 opacity-0 data-[visible='true']:scale-100 data-[visible='true']:opacity-100 relative">
 
-            <!-- BotÃ³n de Cerrar -->
+            <!-- BotÃƒÂ³n de Cerrar -->
             <button id="close-detail-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-20">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
@@ -181,7 +181,7 @@
                     </button>
                 </div>
 
-                <!-- Columna de Detalles/DescripciÃ³n -->
+                <!-- Columna de Detalles/DescripciÃƒÂ³n -->
                 <div>
                     <h2 id="detail-name" class="text-4xl md:text-5xl font-extrabold text-white mb-4">Cargando Nombre del Producto...</h2>
                     <div class="border-b border-gray-700 mb-6"></div>
@@ -191,11 +191,11 @@
         </div>
     </div>
 
-    <!-- SecciÃ³n Hero -->
+    <!-- SecciÃƒÂ³n Hero -->
     <section class="hero h-[70vh] flex items-center justify-center text-center relative">
         <div class="relative z-10 p-6 max-w-4xl">
-            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-4 animate-fade-in">Descubre lo Ãºltimo en TecnologÃ­a</h1>
-            <p class="text-xl md:text-2xl font-light mb-8 animate-fade-in animation-delay-300">Explora una selecciÃ³n curada de productos de alta calidad y personaliza tu experiencia con nuestro servicio experto.</p>
+            <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-4 animate-fade-in">Descubre lo ultimo en TecnologiÂ­a</h1>
+            <p class="text-xl md:text-2xl font-light mb-8 animate-fade-in animation-delay-300">Explora una selecciÃƒÂ³n curada de productos de alta calidad y personaliza tu experiencia con nuestro servicio experto.</p>
             <a href="#categorias" class="bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">Ver Productos</a>
         </div>
     </section>
@@ -212,8 +212,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-300">Envíos a todo el país</p>
-                        <p class="text-base font-semibold text-white">Rápidos y seguros</p>
+                        <p class="text-sm text-gray-300">EnvÃ­os a todo el paÃ­s</p>
+                        <p class="text-base font-semibold text-white">RÃ¡pidos y seguros</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 bg-gray-900/80 backdrop-blur-sm border border-teal-500/20 rounded-xl p-4 shadow-lg">
@@ -224,8 +224,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-300">Garantía oficial</p>
-                        <p class="text-base font-semibold text-white">Comprá con tranquilidad</p>
+                        <p class="text-sm text-gray-300">GarantÃ­a oficial</p>
+                        <p class="text-base font-semibold text-white">ComprÃ¡ con tranquilidad</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 bg-gray-900/80 backdrop-blur-sm border border-teal-500/20 rounded-xl p-4 shadow-lg">
@@ -237,7 +237,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-300">Soporte experto</p>
-                        <p class="text-base font-semibold text-white">Asesoría personalizada</p>
+                        <p class="text-base font-semibold text-white">AsesorÃ­a personalizada</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 bg-gray-900/80 backdrop-blur-sm border border-teal-500/20 rounded-xl p-4 shadow-lg">
@@ -256,41 +256,42 @@
         </div>
     </section>
 
-    <!-- Marcas destacadas -->
-    <section aria-label="Marcas destacadas" class="py-12">
+    <!-- Servicio de arreglos de celulares -->
+    <section aria-label="Servicio técnico" class="py-12">
         <div class="container mx-auto px-6">
-            <div class="bg-gray-900/60 border border-gray-700/50 rounded-2xl p-6 md:p-8 shadow-xl">
-                <p class="text-center text-gray-400 text-sm uppercase tracking-widest mb-6">Confían en nosotros</p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center opacity-80">
-                    <img src="https://placehold.co/140x40?text=Samsung" alt="Samsung" class="mx-auto h-8 object-contain" />
-                    <img src="https://placehold.co/140x40?text=Apple" alt="Apple" class="mx-auto h-8 object-contain" />
-                    <img src="https://placehold.co/140x40?text=Xiaomi" alt="Xiaomi" class="mx-auto h-8 object-contain" />
-                    <img src="https://placehold.co/140x40?text=Sony" alt="Sony" class="mx-auto h-8 object-contain" />
-                    <img src="https://placehold.co/140x40?text=Logitech" alt="Logitech" class="mx-auto h-8 object-contain" />
-                    <img src="https://placehold.co/140x40?text=Philips" alt="Philips" class="mx-auto h-8 object-contain" />
+            <div class="relative rounded-2xl p-[2px] bg-gradient-to-r from-teal-500/40 via-cyan-400/40 to-teal-500/40 animate-pulse">
+                <div class="rounded-2xl bg-gray-900/70 backdrop-blur-sm border border-gray-700/60 px-6 md:px-10 py-8 flex flex-col md:flex-row items-start md:items-center gap-6 animate-fade-in">
+                    <div class="p-4 rounded-xl bg-teal-500/10 text-teal-400 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
+                            <path d="M11.25 2.25a.75.75 0 01.75.75V6h2.25a.75.75 0 01.53.22l1.5 1.5a.75.75 0 010 1.06l-1.5 1.5a.75.75 0 01-.53.22H12v8.25a.75.75 0 01-1.5 0V10.5H7.5a.75.75 0 01-.53-.22L5.47 8.78a.75.75 0 010-1.06l1.5-1.5a.75.75 0 01.53-.22H10.5V3a.75.75 0 01.75-.75z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xl md:text-2xl text-white font-semibold leading-relaxed">en tecnocel te ofrecemos nuestro servicio de arreglo de celulares, consultanos tus dudas.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Seccion de CategorÃ­as y Productos -->
+    <!-- Seccion de CategorÃƒÂ­as y Productos -->
     <section id="categorias" class="py-16 md:py-24 bg-gray-800/70 backdrop-blur-sm border-t border-gray-700/40">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-16 text-teal-400">Nuestras CategorÃ­as</h2>
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-16 text-teal-400">Nuestras CategorÃƒÂ­as</h2>
 
-            <!-- NUEVO CONTENEDOR PARA LAS TARJETAS VISUALES DE CATEGORÃA -->
+            <!-- NUEVO CONTENEDOR PARA LAS TARJETAS VISUALES DE CATEGORÃƒÂA -->
             <div 
                 id="category-cards-container" 
                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-20"
             >
-                <!-- Las tarjetas de categorÃ­a se insertan aquÃ­ dinÃ¡micamente con JS -->
-                <div class="category-card bg-gray-900 h-64 rounded-xl flex items-center justify-center text-gray-500">Cargando categorÃ­as...</div>
+                <!-- Las tarjetas de categorÃƒÂ­a se insertan aquÃƒÂ­ dinÃƒÂ¡micamente con JS -->
+                <div class="category-card bg-gray-900 h-64 rounded-xl flex items-center justify-center text-gray-500">Cargando categorÃƒÂ­as...</div>
             </div>
 
             <!-- CONTENEDOR PARA LAS SECCIONES DE PRODUCTOS -->
             <div id="product-grid-container">
-                <!-- Las secciones de productos por categorÃ­a se insertan aquÃ­ dinÃ¡micamente con JS -->
-                <!-- El spinner inicial tambiÃ©n irÃ¡ aquÃ­ -->
+                <!-- Las secciones de productos por categorÃƒÂ­a se insertan aquÃƒÂ­ dinÃƒÂ¡micamente con JS -->
+                <!-- El spinner inicial tambiÃƒÂ©n irÃƒÂ¡ aquÃƒÂ­ -->
             </div>
         </div>
     </section>
@@ -311,8 +312,9 @@
 
     <!-- Config centralizada de API_BASE_URL -->
     <script src="config.js" charset="UTF-8"></script>
-    <!-- Script de la lógica principal -->
+    <!-- Script de la lÃ³gica principal -->
     <script src="main.js" charset="UTF-8"></script>
 </body>
 </html>
+
 
