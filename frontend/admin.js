@@ -99,6 +99,10 @@
     .replace(/'/g, '&#039;');
 
   function showAlert(msg) { alert(msg); }
+  function setTableMessage(tbody, cols, text, cls = 'loading-row') {
+    if (!tbody) return;
+    tbody.innerHTML = `<tr class="${cls}"><td colspan="${cols}">${escapeHtml(text)}</td></tr>`;
+  }
   const decodeHtml = (str) => {
     try {
       const t = document.createElement('textarea');
@@ -208,12 +212,26 @@
 
   // Data load & render
   async function loadCategories() {
-    const cats = await apiFetch('/categorias', { method: 'GET' });
-    categoriesCache = Array.isArray(cats) ? cats : [];
-    renderCategoriesTable(categoriesCache);
-    populateCategorySelect(categoriesCache);
-    updateDashboardCounts();
-    return categoriesCache;
+    const tbody = document.getElementById('categories-table') || qs('#categories-section tbody');
+    setTableMessage(tbody, 5, 'Cargando...');
+    let finished = false;
+    const cap = setTimeout(() => {
+      if (!finished) setTableMessage(tbody, 5, 'Cargando...');
+    }, 5000);
+    try {
+      const cats = await apiFetch('/categorias', { method: 'GET' });
+      categoriesCache = Array.isArray(cats) ? cats : [];
+      renderCategoriesTable(categoriesCache);
+      populateCategorySelect(categoriesCache);
+      updateDashboardCounts();
+      return categoriesCache;
+    } catch (err) {
+      setTableMessage(tbody, 5, err?.message || 'No se pudo cargar categorías', 'error-row');
+      return [];
+    } finally {
+      finished = true;
+      clearTimeout(cap);
+    }
   }
 
   function renderCategoriesTable(cats) {
@@ -249,11 +267,25 @@
   }
 
   async function loadProducts() {
-    const products = await apiFetch('/productos', { method: 'GET' });
-    productsCache = Array.isArray(products) ? products : [];
-    renderProductsTable(productsCache);
-    updateDashboardCounts();
-    return productsCache;
+    const tbody = document.getElementById('products-table') || qs('#products-section tbody');
+    setTableMessage(tbody, 7, 'Cargando...');
+    let finished = false;
+    const cap = setTimeout(() => {
+      if (!finished) setTableMessage(tbody, 7, 'Cargando...');
+    }, 5000);
+    try {
+      const products = await apiFetch('/productos', { method: 'GET' });
+      productsCache = Array.isArray(products) ? products : [];
+      renderProductsTable(productsCache);
+      updateDashboardCounts();
+      return productsCache;
+    } catch (err) {
+      setTableMessage(tbody, 7, err?.message || 'No se pudo cargar productos', 'error-row');
+      return [];
+    } finally {
+      finished = true;
+      clearTimeout(cap);
+    }
   }
 
   function renderProductsTable(products) {
