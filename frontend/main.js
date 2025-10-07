@@ -569,8 +569,22 @@
     // Mostrar modal y activar animaciones/data-attrs para que sea visible
     detailModal.classList.remove('hidden');
     detailModal.setAttribute('data-visible', 'true');
+    // Overlay fade-in animation (CSS keyframes)
+    detailModal.classList.add('modal-overlay-open');
+    // Remove animation flag after it runs to allow retrigger next time
+    setTimeout(() => detailModal.classList.remove('modal-overlay-open'), 350);
+    // Panel pop-in animation
     const panel = detailModal.firstElementChild;
-    if (panel) panel.setAttribute('data-visible', 'true');
+    if (panel) {
+      panel.setAttribute('data-visible', 'true');
+      // Ensure visibility even if Tailwind data-variant isn't active
+      panel.classList.remove('opacity-0', 'scale-95');
+      // Retrigger CSS animation
+      panel.classList.remove('modal-pop-in');
+      // Force reflow to restart animation
+      void panel.offsetWidth;
+      panel.classList.add('modal-pop-in');
+    }
   }
 
   function closeProductDetail() {
