@@ -948,13 +948,23 @@
       controls.id = 'price-controls';
       controls.className = 'w-full md:w-auto';
       controls.innerHTML = `
-        <div class="flex flex-wrap items-center gap-2 text-sm">
-          <span class="text-gray-300">Precio:</span>
-          <input type="number" id="price-min" class="w-28 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-100" placeholder="Min" min="0" inputmode="numeric" />
-          <span class="text-gray-400">—</span>
-          <input type="number" id="price-max" class="w-28 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-100" placeholder="Max" min="0" inputmode="numeric" />
-          <button id="apply-price-filter" class="text-sm text-gray-200 hover:text-white bg-gray-700 hover:bg-gray-600 rounded px-3 py-1">Aplicar</button>
-          <button id="clear-price-filter" class="text-sm text-gray-200 hover:text-white bg-gray-700 hover:bg-gray-600 rounded px-3 py-1">Limpiar</button>
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <span class="text-gray-300 font-medium">Precio</span>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+              <input type="number" id="price-min" class="w-32 md:w-36 bg-gray-800/70 border border-gray-700/70 rounded-lg pl-7 pr-3 py-2 text-gray-100 placeholder-gray-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-500 transition" placeholder="Min" min="0" step="1000" inputmode="numeric" aria-label="Precio minimo" title="Precio minimo" />
+            </div>
+            <span class="text-gray-400">—</span>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+              <input type="number" id="price-max" class="w-32 md:w-36 bg-gray-800/70 border border-gray-700/70 rounded-lg pl-7 pr-3 py-2 text-gray-100 placeholder-gray-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-500 transition" placeholder="Max" min="0" step="1000" inputmode="numeric" aria-label="Precio maximo" title="Precio maximo" />
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="apply-price-filter" class="text-sm bg-teal-500 hover:bg-teal-400 text-gray-900 font-semibold rounded-lg px-4 py-2 shadow transition">Aplicar</button>
+            <button id="clear-price-filter" class="text-sm bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 rounded-lg px-4 py-2 transition">Limpiar</button>
+          </div>
         </div>`;
       // Insert before the "Ver todas" button if present; otherwise append
       if (clearBtn) banner.insertBefore(controls, clearBtn);
