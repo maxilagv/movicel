@@ -51,18 +51,31 @@
         if (txt.includes('contacto')) a.setAttribute('href', 'contact.html');
       });
 
-      // Add hamburger styles once
-      if (!document.getElementById('hamburger-style')) {
-        const style = document.createElement('style');
-        style.id = 'hamburger-style';
-        style.textContent = `
-          .hamburger-line{position:absolute;left:0;right:0;height:2px;background:#fff;border-radius:9999px;transition:transform .25s ease,opacity .2s ease}
-          #menu-toggle.open .hamburger-line:nth-child(1){transform:translateY(8px) rotate(45deg)}
-          #menu-toggle.open .hamburger-line:nth-child(2){opacity:0}
-          #menu-toggle.open .hamburger-line:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
-        `;
-        document.head.appendChild(style);
-      }
+        // Add hamburger styles once
+        if (!document.getElementById('hamburger-style')) {
+          const style = document.createElement('style');
+          style.id = 'hamburger-style';
+          style.textContent = `
+            /* Animated hamburger icon */
+            .hamburger-line{position:absolute;left:0;right:0;height:2px;background:#fff;border-radius:9999px;transition:transform .25s ease,opacity .2s ease,background-color .2s ease,width .25s ease;transform-origin:left center}
+            #menu-toggle .hamburger-line:nth-child(1){top:0}
+            #menu-toggle .hamburger-line:nth-child(2){top:50%;transform:translateY(-50%)}
+            #menu-toggle .hamburger-line:nth-child(3){bottom:0}
+            #menu-toggle.open .hamburger-line:nth-child(1){transform:translateY(8px) rotate(45deg);width:110%}
+            #menu-toggle.open .hamburger-line:nth-child(2){opacity:0}
+            #menu-toggle.open .hamburger-line:nth-child(3){transform:translateY(-8px) rotate(-45deg);width:110%}
+            #menu-toggle:hover .hamburger-line{background:#5eead4}
+            /* Mobile menu slide / fade */
+            #mobile-menu{transition:transform .25s ease,opacity .25s ease}
+            #mobile-menu.open{transform:translateY(0);opacity:1}
+            /* Accordion panels */
+            .mm-panel{overflow:hidden;max-height:0;opacity:.0;transition:max-height .3s ease,opacity .25s ease}
+            .mm-panel.open{max-height:999px;opacity:1}
+            .mm-toggle .mm-chev{transition:transform .25s ease}
+            .mm-toggle.open .mm-chev{transform:rotate(180deg)}
+          `;
+          document.head.appendChild(style);
+        }
 
       // Right-side container (cart + links)
       let right = nav.querySelector('.flex.items-center.space-x-6');
@@ -93,41 +106,73 @@
         // Create mobile menu container if not exists
         const headerEl = header;
         let mobileMenu = document.getElementById('mobile-menu');
-        if (!mobileMenu && headerEl) {
-          mobileMenu = document.createElement('div');
-          mobileMenu.id = 'mobile-menu';
-          mobileMenu.className = 'md:hidden hidden border-t border-gray-800 bg-gray-900/95';
-          mobileMenu.innerHTML = '<div class="px-6 py-3 space-y-2" id="mobile-menu-items"></div>';
-          headerEl.appendChild(mobileMenu);
-        }
+          if (!mobileMenu && headerEl) {
+            mobileMenu = document.createElement('div');
+            mobileMenu.id = 'mobile-menu';
+            mobileMenu.className = 'md:hidden hidden border-t border-gray-800 bg-gray-900/95';
+            mobileMenu.innerHTML = '<div class="px-6 py-3 space-y-3" id="mobile-menu-items"></div>';
+            headerEl.appendChild(mobileMenu);
+          }
 
-        // Build mobile menu items from existing nav links
-        const itemsWrap = $('#mobile-menu-items');
-        if (itemsWrap) {
-          itemsWrap.innerHTML = '';
-          const links = $$('a', nav).filter(a => /productos|contacto/i.test(a.textContent || ''));
-          links.forEach(a => {
-            const clone = a.cloneNode(true);
-            clone.className = 'block text-white hover:text-teal-400 transition-colors';
-            const txt = (clone.textContent || '').toLowerCase();
-            if (txt.includes('contacto')) clone.setAttribute('href', 'contact.html');
-            itemsWrap.appendChild(clone);
-          });
-        }
+          // Build mobile menu structure (accordion with Productos and Contacto)
+          const itemsWrap = $('#mobile-menu-items');
+          if (itemsWrap) {
+            itemsWrap.innerHTML = `
+              <div>
+                <button id="mm-products-toggle" class="mm-toggle w-full flex items-center justify-between text-white font-medium py-2">
+                  <span>Productos</span>
+                  <svg class="mm-chev w-4 h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 111.08 1.04l-4.25 4.45a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                </button>
+                <div id="mm-products-panel" class="mm-panel pl-2">
+                  <a id="mm-all-products" class="block py-2 text-gray-200 hover:text-teal-400" href="#categorias">Ver todo (menu principal)</a>
+                  <div id="mm-categories-list" class="my-1 text-gray-300">
+                    <div class="py-1 text-gray-400">Cargando categorias...</div>
+                  </div>
+                </div>
+              </div>
+              <a class="block text-white hover:text-teal-400 transition-colors py-2" href="contact.html">Contacto</a>
+            `;
 
-        // Toggle logic
-        const openMenu = () => {
-          if (!mobileMenu) return;
-          mobileMenu.classList.remove('hidden');
-          btn.classList.add('open');
-          btn.setAttribute('aria-expanded', 'true');
-        };
-        const closeMenu = () => {
-          if (!mobileMenu) return;
-          mobileMenu.classList.add('hidden');
-          btn.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-        };
+            const productsToggle = document.getElementById('mm-products-toggle');
+            const productsPanel = document.getElementById('mm-products-panel');
+            const allProducts = document.getElementById('mm-all-products');
+
+            const togglePanel = (toggleEl, panelEl) => {
+              if (!panelEl) return;
+              const isOpen = panelEl.classList.contains('open');
+              panelEl.classList.toggle('open', !isOpen);
+              if (toggleEl) toggleEl.classList.toggle('open', !isOpen);
+            };
+            productsToggle?.addEventListener('click', () => togglePanel(productsToggle, productsPanel));
+            allProducts?.addEventListener('click', (e) => {
+              try {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('categoria');
+                url.searchParams.delete('min');
+                url.searchParams.delete('max');
+                history.pushState({}, '', url);
+              } catch {}
+              filterProductSectionsBySlug(null);
+              updateCategoryUIForFilter(null);
+              closeMenu();
+            });
+          }
+
+          // Toggle logic
+          const openMenu = () => {
+            if (!mobileMenu) return;
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('open');
+            btn.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+          };
+          const closeMenu = () => {
+            if (!mobileMenu) return;
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('open');
+            btn.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+          };
         btn.addEventListener('click', () => {
           const expanded = btn.getAttribute('aria-expanded') === 'true';
           expanded ? closeMenu() : openMenu();
@@ -137,10 +182,58 @@
           if (!mobileMenu.contains(e.target) && !btn.contains(e.target)) closeMenu();
         });
         window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
-        $$('#mobile-menu a').forEach(a => a.addEventListener('click', closeMenu));
+          $$('#mobile-menu a').forEach(a => a.addEventListener('click', closeMenu));
+        }
       }
+    } catch {}
+
+    // Build categories submenu inside mobile menu once data is loaded
+    function populateMobileCategoriesMenu() {
+      const list = document.getElementById('mm-categories-list');
+      if (!list) return;
+      const cats = Array.isArray(state.categories) ? state.categories : [];
+      if (!cats.length) {
+        list.innerHTML = '<div class="py-1 text-gray-400">No hay categorias.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      cats.forEach(cat => {
+        const catSlug = slug(cat.name);
+        const count = state.products.filter(p => String(getProductCategoryId(p)) === String(cat.id)).length;
+        const wrap = document.createElement('div');
+        wrap.className = 'border-b border-gray-800 last:border-b-0';
+        const btn = document.createElement('button');
+        btn.className = 'mm-toggle w-full flex items-center justify-between text-gray-200 hover:text-teal-400 py-2';
+        btn.innerHTML = `<span>${decodeEntities(cat.name)} <span class="text-xs text-gray-500">(${count})</span></span>
+                         <svg class="mm-chev w-4 h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.11l3.71-3.88a.75.75 0 111.08 1.04l-4.25 4.45a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>`;
+        const panel = document.createElement('div');
+        panel.className = 'mm-panel pl-3';
+        const link = document.createElement('a');
+        link.href = '#categorias';
+        link.className = 'block py-2 text-gray-300 hover:text-teal-400';
+        link.textContent = 'Ver categoria';
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('categoria', catSlug);
+            history.pushState({}, '', url);
+          } catch {}
+          applyCategoryFilterFromURL();
+          const mt = document.getElementById('menu-toggle');
+          if (mt && mt.getAttribute('aria-expanded') === 'true') mt.click();
+        });
+        panel.appendChild(link);
+        btn.addEventListener('click', () => {
+          const isOpen = panel.classList.contains('open');
+          panel.classList.toggle('open', !isOpen);
+          btn.classList.toggle('open', !isOpen);
+        });
+        wrap.appendChild(btn);
+        wrap.appendChild(panel);
+        list.appendChild(wrap);
+      });
     }
-  } catch {}
 
   // --- Safe description rendering (allow images from admin) ---
   function decodeEntities(str) {
@@ -1110,8 +1203,9 @@
       state.products = Array.isArray(prodRes) ? prodRes : (prodRes.products || []);
 
       // Renderizar categorías (tarjetas) y secciones de productos
-      renderCategoriesAndProducts();
-      applyCategoryFilterFromURL();
+        renderCategoriesAndProducts();
+        applyCategoryFilterFromURL();
+        try { populateMobileCategoriesMenu(); } catch {}
 
     } catch (e) {
       console.error('Error al cargar datos:', e);
