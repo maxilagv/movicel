@@ -733,7 +733,7 @@
         : 'Sin descripción.';
 
     return `
-      <div class="product-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col hover:border-teal-500 transition-all duration-300">
+      <div class="product-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col hover:border-teal-500 transition-all duration-300" data-price="${Number(product.price) || 0}">
         <div class="relative h-48 overflow-hidden">
             ${stockBadge}
             <img 
@@ -891,6 +891,11 @@
     const slugSel = readCategorySlugFromURL();
     filterProductSectionsBySlug(slugSel);
     updateCategoryUIForFilter(slugSel);
+    // Apply price filter from URL if present
+    if (slugSel) {
+      const pf = readPriceFilterFromURL();
+      if (pf) filterCurrentCategoryByPrice(slugSel, pf.min, pf.max);
+    }
   }
 
   function updateCategoryUIForFilter(catSlug) {
@@ -926,11 +931,103 @@
       try {
         const url = new URL(window.location.href);
         url.searchParams.delete('categoria');
+        url.searchParams.delete('min');
+        url.searchParams.delete('max');
         history.pushState({}, '', url);
       } catch {}
       // Show all
       filterProductSectionsBySlug(null);
       updateCategoryUIForFilter(null);
+    });
+
+    // Add price controls (once)
+    try { banner.classList.add('flex-col', 'gap-3', 'md:flex-row', 'md:items-center'); } catch {}
+
+    if (!document.getElementById('price-controls')) {
+      const controls = document.createElement('div');
+      controls.id = 'price-controls';
+      controls.className = 'w-full md:w-auto';
+      controls.innerHTML = `
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <span class="text-gray-300">Precio:</span>
+          <input type="number" id="price-min" class="w-28 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-100" placeholder="Min" min="0" inputmode="numeric" />
+          <span class="text-gray-400">—</span>
+          <input type="number" id="price-max" class="w-28 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-100" placeholder="Max" min="0" inputmode="numeric" />
+          <button id="apply-price-filter" class="text-sm text-gray-200 hover:text-white bg-gray-700 hover:bg-gray-600 rounded px-3 py-1">Aplicar</button>
+          <button id="clear-price-filter" class="text-sm text-gray-200 hover:text-white bg-gray-700 hover:bg-gray-600 rounded px-3 py-1">Limpiar</button>
+        </div>`;
+      // Insert before the "Ver todas" button if present; otherwise append
+      if (clearBtn) banner.insertBefore(controls, clearBtn);
+      else banner.appendChild(controls);
+
+      const $min = controls.querySelector('#price-min');
+      const $max = controls.querySelector('#price-max');
+      const pf = readPriceFilterFromURL() || {};
+      if ($min && typeof pf.min === 'number' && Number.isFinite(pf.min)) $min.value = String(pf.min);
+      if ($max && typeof pf.max === 'number' && Number.isFinite(pf.max)) $max.value = String(pf.max);
+
+      const apply = () => {
+        const minVal = $min && $min.value !== '' ? Number($min.value) : null;
+        const maxVal = $max && $max.value !== '' ? Number($max.value) : null;
+        let a = Number.isFinite(minVal) ? minVal : null;
+        let b = Number.isFinite(maxVal) ? maxVal : null;
+        if (a !== null && b !== null && a > b) { const t = a; a = b; b = t; }
+        updatePriceFilterInURL(a, b);
+        filterCurrentCategoryByPrice(catSlug, a, b);
+      };
+      const clearPrice = () => {
+        if ($min) $min.value = '';
+        if ($max) $max.value = '';
+        updatePriceFilterInURL(null, null);
+        filterCurrentCategoryByPrice(catSlug, null, null);
+      };
+      controls.querySelector('#apply-price-filter')?.addEventListener('click', apply);
+      controls.querySelector('#clear-price-filter')?.addEventListener('click', clearPrice);
+      [$min, $max].forEach(inp => inp && inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') apply(); }));
+
+      if (pf && (Number.isFinite(pf.min) || Number.isFinite(pf.max))) {
+        filterCurrentCategoryByPrice(catSlug, pf.min, pf.max);
+      }
+    }
+  }
+
+  // --- Price filter helpers ---
+  function readPriceFilterFromURL() {
+    try {
+      const u = new URL(window.location.href);
+      const rawMin = u.searchParams.get('min') || u.searchParams.get('precioMin') || u.searchParams.get('minimo');
+      const rawMax = u.searchParams.get('max') || u.searchParams.get('precioMax') || u.searchParams.get('maximo');
+      const min = rawMin !== null ? Number(rawMin) : null;
+      const max = rawMax !== null ? Number(rawMax) : null;
+      const out = {};
+      out.min = Number.isFinite(min) ? min : null;
+      out.max = Number.isFinite(max) ? max : null;
+      if (out.min === null && out.max === null) return null;
+      return out;
+    } catch {
+      return null;
+    }
+  }
+
+  function updatePriceFilterInURL(min, max) {
+    try {
+      const url = new URL(window.location.href);
+      if (min === null || min === undefined) url.searchParams.delete('min'); else url.searchParams.set('min', String(min));
+      if (max === null || max === undefined) url.searchParams.delete('max'); else url.searchParams.set('max', String(max));
+      history.pushState({}, '', url);
+    } catch {}
+  }
+
+  function filterCurrentCategoryByPrice(catSlug, min, max) {
+    if (!catSlug) return;
+    const sec = document.getElementById(`cat-${catSlug}`);
+    if (!sec) return;
+    const cards = $$('.product-card', sec);
+    cards.forEach(card => {
+      const price = Number(card.dataset.price || '0');
+      const passMin = (min !== null && min !== undefined && Number.isFinite(min)) ? (price >= min) : true;
+      const passMax = (max !== null && max !== undefined && Number.isFinite(max)) ? (price <= max) : true;
+      card.style.display = (passMin && passMax) ? '' : 'none';
     });
   }
 
