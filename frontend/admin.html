@@ -478,6 +478,10 @@
                 <i class="fas fa-box"></i>
                 <span>Productos</span>
             </a>
+            <a href="#" class="menu-item" data-nav="compras">
+                <i class="fas fa-receipt"></i>
+                <span>Compras</span>
+            </a>
             <a href="#" class="menu-item" data-nav="logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
@@ -525,6 +529,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="categories">Categorías</div>
             <div class="tab" data-tab="products">Productos</div>
+            <div class="tab" data-tab="orders">Compras</div>
         </div>
         
         <!-- Categories Section -->
@@ -578,6 +583,36 @@
                             </tr>
                         </thead>
                         <tbody id="products-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="tab-content" id="orders-section">
+            <div class="content-section">
+                <div class="section-header">
+                    <h2>Compras</h2>
+                    <button class="btn btn-primary" id="refresh-orders">
+                        <i class="fas fa-rotate-right"></i> Actualizar
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>N° Orden</th>
+                                <th>Código</th>
+                                <th>Cliente</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table"></tbody>
                     </table>
                 </div>
             </div>

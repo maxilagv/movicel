@@ -376,6 +376,14 @@
   const cartTotalEl = $('#cart-total');
   const emptyCartMessage = $('#empty-cart-message');
   const checkoutBtn = $('#checkout-btn');
+  // Checkout (modal de datos del comprador)
+  const checkoutModal = $('#checkout-modal');
+  const closeCheckoutModalBtn = $('#close-checkout-modal');
+  const checkoutForm = $('#checkout-form');
+  const buyerEmailInput = $('#buyer-email');
+  const buyerPhoneInput = $('#buyer-phone');
+  const buyerCodeInput = $('#buyer-code');
+  const confirmCheckoutBtn = $('#confirm-checkout-btn');
 
   function saveCart() {
     try {
@@ -1261,7 +1269,75 @@
     }
   }
   
-  checkoutBtn?.addEventListener('click', checkout);
+  // Override: abrir modal de checkout en lugar de enviar directo
+  checkoutBtn?.addEventListener('click', () => {
+    try {
+      const savedCode = localStorage.getItem('tecnocel_buyer_code');
+      if (savedCode && buyerCodeInput) buyerCodeInput.value = savedCode;
+    } catch {}
+    if (!state.cart.length) { showTempMessage('El carrito está vacío'); return; }
+    if (checkoutModal) {
+      checkoutModal.classList.remove('hidden');
+      checkoutModal.setAttribute('data-visible', 'true');
+      const panel = checkoutModal.firstElementChild;
+      if (panel) { panel.setAttribute('data-visible', 'true'); panel.classList.remove('opacity-0', 'scale-95'); }
+    }
+  });
+
+  // Cierre del modal de checkout
+  closeCheckoutModalBtn?.addEventListener('click', () => {
+    if (!checkoutModal) return;
+    const panel = checkoutModal.firstElementChild;
+    if (panel) { panel.removeAttribute('data-visible'); panel.classList.add('opacity-0', 'scale-95'); }
+    checkoutModal.removeAttribute('data-visible');
+    checkoutModal.classList.add('hidden');
+  });
+  checkoutModal?.addEventListener('click', (e) => { if (e.target === checkoutModal) {
+    const panel = checkoutModal.firstElementChild;
+    if (panel) { panel.removeAttribute('data-visible'); panel.classList.add('opacity-0', 'scale-95'); }
+    checkoutModal.removeAttribute('data-visible');
+    checkoutModal.classList.add('hidden');
+  }});
+
+  // Confirmación de checkout (envío al backend)
+  checkoutForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!state.cart.length) { showTempMessage('El carrito está vacío'); return; }
+    const email = (buyerEmailInput?.value || '').trim();
+    const phone = (buyerPhoneInput?.value || '').trim();
+    const codeRaw = (buyerCodeInput?.value || '').trim();
+    if (!email || !phone) { showTempMessage('Completá email y teléfono'); return; }
+    if (confirmCheckoutBtn) { confirmCheckoutBtn.disabled = true; confirmCheckoutBtn.textContent = 'Procesando...'; }
+    try {
+      const payload = { buyer: { name: 'Cliente Web', email, phone, ...(codeRaw ? { code: codeRaw } : {}) }, items: state.cart.map(i => ({ productId: i.id, quantity: i.qty })) };
+      const res = await fetchJSON(`${API_BASE}/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const orderNum = res.orderNumber || res.orderId || 'OK';
+      const buyerCode = res.buyerCode || codeRaw || null;
+      showTempMessage(`Orden #${orderNum} creada con éxito`);
+      if (buyerCode) { try { localStorage.setItem('tecnocel_buyer_code', String(buyerCode)); } catch {} }
+      // Limpiar carrito y cerrar modales
+      state.cart = [];
+      try { localStorage.removeItem('tecnocel_cart'); } catch {}
+      updateCartUI();
+      // Cerrar checkout modal
+      const panel = checkoutModal?.firstElementChild;
+      if (panel) { panel.removeAttribute('data-visible'); panel.classList.add('opacity-0', 'scale-95'); }
+      checkoutModal?.removeAttribute('data-visible');
+      checkoutModal?.classList.add('hidden');
+      // Cerrar cart modal si estuviera abierto
+      if (cartModal) {
+        const p2 = cartModal.firstElementChild;
+        if (p2) { p2.removeAttribute('data-visible'); p2.classList.add('opacity-0', 'scale-95'); }
+        cartModal.removeAttribute('data-visible');
+        cartModal.classList.add('hidden');
+      }
+    } catch (err) {
+      console.error('Checkout error', err);
+      showTempMessage(`No se pudo completar la compra: ${err.message || 'Error desconocido'}`);
+    } finally {
+      if (confirmCheckoutBtn) { confirmCheckoutBtn.disabled = false; confirmCheckoutBtn.textContent = 'Confirmar compra'; }
+    }
+  });
 
   function exposeForDebug() {
     // Expose minimal API for quick testing in console

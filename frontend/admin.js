@@ -16,6 +16,7 @@
   // In-memory caches for edit prefill
   let categoriesCache = [];
   let productsCache = [];
+  let ordersCache = [];
 
   // Update dashboard counts for products and categories
   function updateDashboardCounts() {
@@ -151,11 +152,14 @@
         const target = `${tab.dataset.tab}-section`;
         document.getElementById(target)?.classList.add('active');
         // Mantener coherencia con el sidebar
-        const navMap = { categories: 'categorias', products: 'productos' };
+        const navMap = { categories: 'categorias', products: 'productos', orders: 'compras' };
         const nav = navMap[tab.dataset.tab];
         if (nav) {
           qsa('.sidebar .menu-item').forEach(i => i.classList.remove('active'));
           qs(`.sidebar .menu-item[data-nav="${nav}"]`)?.classList.add('active');
+        }
+        if (tab.dataset.tab === 'orders') {
+          loadOrders();
         }
       });
     });
@@ -194,6 +198,15 @@
         document.getElementById('products-section')?.classList.add('active');
         try { await loadProducts(); } catch (_) {}
         document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      if (nav === 'compras') {
+        qsa('.tab').forEach(t => t.classList.remove('active'));
+        qsa('.tab-content').forEach(c => c.classList.remove('active'));
+        qs('.tab[data-tab="orders"]').classList.add('active');
+        document.getElementById('orders-section')?.classList.add('active');
+        try { await loadOrders(); } catch (_) {}
+        document.getElementById('orders-section')?.scrollIntoView({ behavior: 'smooth' });
         return;
       }
       if (nav === 'logout') {
@@ -281,6 +294,63 @@
       return productsCache;
     } catch (err) {
       setTableMessage(tbody, 7, err?.message || 'No se pudo cargar productos', 'error-row');
+      return [];
+    } finally {
+      finished = true;
+      clearTimeout(cap);
+    }
+  }
+
+  // Orders
+  const fmtMoney = (n) => `$${Number(n || 0).toFixed(2)}`;
+  function renderOrdersTable(rows) {
+    const tbody = document.getElementById('orders-table');
+    if (!tbody) return;
+    if (!Array.isArray(rows) || !rows.length) {
+      setTableMessage(tbody, 9, 'Sin compras registradas');
+      return;
+    }
+    tbody.innerHTML = rows.map(o => {
+      const dateStr = o.order_date ? new Date(o.order_date).toLocaleString() : '';
+      const code = o.buyer_code || '';
+      const name = escapeHtml(o.buyer_name || '');
+      const email = escapeHtml(o.buyer_email || '');
+      const phone = escapeHtml(o.buyer_phone || '');
+      const total = fmtMoney(o.total_amount || 0);
+      return `
+        <tr data-id="${o.id}">
+          <td>${o.id}</td>
+          <td>${dateStr}</td>
+          <td>${escapeHtml(o.order_number || '')}</td>
+          <td>${escapeHtml(code)}</td>
+          <td>${name}</td>
+          <td>${email}</td>
+          <td>${phone}</td>
+          <td>${total}</td>
+          <td>
+            <div class="action-buttons">
+              <a class="btn-icon" href="${getBase()}/pedidos/${o.id}/pdf" target="_blank" title="PDF">
+                <i class="fas fa-file-pdf"></i>
+              </a>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  async function loadOrders() {
+    const tbody = document.getElementById('orders-table');
+    if (!tbody) return [];
+    setTableMessage(tbody, 9, 'Cargando...');
+    let finished = false;
+    const cap = setTimeout(() => { if (!finished) setTableMessage(tbody, 9, 'Cargando...'); }, 5000);
+    try {
+      const rows = await apiFetch('/pedidos', { method: 'GET' });
+      ordersCache = Array.isArray(rows) ? rows : [];
+      renderOrdersTable(ordersCache);
+      return ordersCache;
+    } catch (err) {
+      setTableMessage(tbody, 9, err?.message || 'No se pudo cargar compras', 'error-row');
       return [];
     } finally {
       finished = true;
@@ -447,6 +517,7 @@
     setupSidebarNav();
     setupModals();
     setupForms();
+    document.getElementById('refresh-orders')?.addEventListener('click', () => loadOrders());
     // Delegated delete handlers for products and categories
     document.addEventListener('click', async (e) => {
       const delCatBtn = e.target.closest('.delete-category');
