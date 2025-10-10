@@ -152,3 +152,110 @@ async function orderPdf(req, res) {
 
 module.exports = { validateCheckout, createOrder, listOrders, orderPdf };
 
+// --- V2 endpoints con buyer_code reutilizable ---
+async function createOrderV2(req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { buyer, items } = req.body;
+
+  try {
+    const result = await withTransaction(async (client) => {
+      const ids = items.map((i) => i.productId);
+      const { rows: products } = await client.query(
+        `SELECT id, name, price::float AS price, stock_quantity FROM Products WHERE id = ANY($1::int[]) FOR UPDATE`,
+        [ids]
+      );
+      const byId = new Map(products.map((p) => [p.id, p]));
+
+      let total = 0;
+      for (const item of items) {
+        const p = byId.get(item.productId);
+        if (!p) throw new Error(`Producto ${item.productId} inexistente`);
+        if (p.stock_quantity < item.quantity) { const e = new Error(`Stock insuficiente para producto ${p.name}`); e.statusCode = 409; throw e; }
+        total += p.price * item.quantity;
+      }
+
+      for (const item of items) {
+        await client.query('UPDATE Products SET stock_quantity = stock_quantity - $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [item.quantity, item.productId]);
+      }
+
+      const buyerName = (buyer?.name || 'Cliente Web').trim();
+      const buyerEmail = buyer?.email ? String(buyer.email).trim().toLowerCase() : null;
+      const buyerPhone = buyer?.phone ? String(buyer.phone).trim() : null;
+      let buyerCode = buyer?.code ? String(buyer.code).trim() : null;
+
+      if (buyerCode) {
+        const { rows: prev } = await client.query('SELECT buyer_email, buyer_phone FROM Orders WHERE buyer_code = $1 ORDER BY id DESC LIMIT 1', [buyerCode]);
+        if (prev.length) {
+          const prevEmail = (prev[0].buyer_email || '').toLowerCase();
+          const prevPhone = prev[0].buyer_phone || '';
+          const sameOwner = (buyerEmail && buyerEmail === prevEmail) || (buyerPhone && buyerPhone === prevPhone);
+          if (!sameOwner) { const e = new Error('Código ya utilizado por otro cliente'); e.statusCode = 409; throw e; }
+        }
+      } else {
+        async function genCandidate() {
+          const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+          const rand = (n) => Array.from({ length: n }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('');
+          return `C-${rand(6)}`;
+        }
+        let ok = false; let tries = 0;
+        while (!ok && tries < 6) {
+          const cand = await genCandidate();
+          const { rows: exists } = await client.query('SELECT 1 FROM Orders WHERE buyer_code = $1 LIMIT 1', [cand]);
+          if (!exists.length) { buyerCode = cand; ok = true; }
+          tries++;
+        }
+        if (!ok) buyerCode = `C-${Date.now().toString(36).toUpperCase()}`;
+      }
+
+      const insOrder = await client.query(
+        `INSERT INTO Orders(user_id, order_date, status, total_amount, buyer_name, buyer_email, buyer_phone)
+         VALUES (NULL, CURRENT_TIMESTAMP, $1, $2, $3, $4, $5) RETURNING id`,
+        ['PAID', total, buyerName, buyerEmail || null, buyerPhone || null]
+      );
+      const orderId = insOrder.rows[0].id;
+
+      await client.query('UPDATE Orders SET buyer_code = $1 WHERE id = $2', [buyerCode || null, orderId]);
+
+      for (const item of items) {
+        const p = byId.get(item.productId);
+        await client.query(`INSERT INTO OrderItems(order_id, product_id, quantity, unit_price) VALUES ($1, $2, $3, $4)`, [orderId, item.productId, item.quantity, p.price]);
+      }
+
+      const ymd = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const orderNumber = `ORD-${ymd}-${orderId}`;
+      await client.query('UPDATE Orders SET order_number = $1 WHERE id = $2', [orderNumber, orderId]);
+
+      return { orderId, orderNumber, buyerCode };
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    console.error('Checkout V2 error', err.message);
+    if (err.statusCode) return res.status(err.statusCode).json({ error: err.message });
+    res.status(500).json({ error: 'No se pudo crear la orden' });
+  }
+}
+
+async function listOrdersV2(req, res) {
+  try {
+    const { rows } = await query(
+      `SELECT id, order_number, buyer_code, buyer_name, buyer_email, buyer_phone,
+              total_amount::float AS total_amount, status, order_date
+         FROM Orders
+        WHERE deleted_at IS NULL OR deleted_at IS NULL
+        ORDER BY id DESC
+        LIMIT 200`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Error al listar pedidos V2:', err.message);
+    res.status(500).json({ error: 'No se pudo obtener pedidos' });
+  }
+}
+
+module.exports.createOrderV2 = createOrderV2;
+module.exports.listOrdersV2 = listOrdersV2;
