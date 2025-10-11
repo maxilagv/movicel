@@ -106,9 +106,9 @@ body.light .input-group input {
 }
 body.light .logo h1 { color: var(--secondary); }
 
-/* Ocultar fondos oscuros de contacto si existen */
+/* Fondo animado en modo claro (sutil y atractivo) */
 body.light #bg-animated,
-body.light #bg-orbs { display: none !important; }
+body.light #bg-orbs { display: block !important; }
 
 /* ====== Aesthetic micro-animations and effects ====== */
 /* Reveal-on-scroll utility */
@@ -130,3 +130,87 @@ body.light #bg-orbs { display: none !important; }
 /* Skeleton shimmer (optional utility) */
 .skeleton { position: relative; overflow: hidden; background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.12) 20%, rgba(255,255,255,0.06) 40%); background-size: 300% 100%; animation: shimmer 1.25s infinite linear; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+/* ====== Contact page light overrides (ensure clear contrast) ====== */
+/* Force light background and readable text on contact.html when body has .light */
+body.light .content-section {
+  background: #ffffff;
+  color: var(--secondary);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+body.light h2 {
+  color: var(--primary);
+  border-bottom: 2px solid var(--secondary);
+}
+
+body.light h3 { color: var(--accent); }
+
+body.light .contact-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  color: var(--secondary);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+body.light .contact-icon { color: var(--primary); }
+
+body.light .btn {
+  background: var(--primary);
+  color: #ffffff;
+}
+body.light .btn:hover { background: var(--accent); }
+
+body.light .btn-whatsapp { background: #25D366; color: #ffffff; }
+body.light .btn-whatsapp:hover { background: #128C7E; }
+
+body.light .btn-email { background: #EA4335; color: #ffffff; }
+body.light .btn-email:hover { background: #D93025; }
+
+body.light .step { background: #f8fafc; border-left: 4px solid var(--accent); }
+body.light .team-member { background: #f8fafc; }
+
+/* Footer in light mode */
+body.light footer { color: var(--gray); border-top: 1px solid #e2e8f0; }
+
+/* Header text color for light mode (fix title visibility) */
+body.light header { color: #0f172a; }
+body.light header .logo { color: var(--primary); }
+body.light header .tagline { color: #475569; }
+
+/* Attractive light background with subtle mesh + blobs */
+body.light #bg-animated {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 500px at 18% -10%, rgba(56,189,248,0.10), transparent 60%),
+    radial-gradient(900px 480px at 82% 110%, rgba(139,92,246,0.08), transparent 60%),
+    linear-gradient(120deg, #f7fbff, #fdf8ff, #fff7ed);
+  background-size: 200% 200%, 200% 200%, 200% 200%;
+  animation: moveGradient 36s ease-in-out infinite alternate;
+  filter: none;
+}
+
+body.light #bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+body.light .orb { filter: blur(50px); opacity: 0.16; mix-blend-mode: normal; }
+body.light .orb.teal   { background: radial-gradient(circle at 30% 30%, rgba(20,184,166,0.35), transparent 58%); }
+body.light .orb.cyan   { background: radial-gradient(circle at 30% 30%, rgba(56,189,248,0.32), transparent 58%); }
+body.light .orb.violet { background: radial-gradient(circle at 30% 30%, rgba(139,92,246,0.28), transparent 58%); }
+
+/* Slight glass effect for cards/sections (keeps readability) */
+body.light .content-section {
+  background: rgba(255,255,255,0.86);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(14,165,233,0.12);
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+}

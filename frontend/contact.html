@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -193,21 +193,10 @@
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .btn-whatsapp {
-            background: #25D366;
-        }
-        
-        .btn-whatsapp:hover {
-            background: #128C7E;
-        }
-        
-        .btn-email {
-            background: #EA4335;
-        }
-        
-        .btn-email:hover {
-            background: #D93025;
-        }
+        .btn-whatsapp { background: #25D366; }
+        .btn-whatsapp:hover { background: #128C7E; }
+        .btn-email { background: #EA4335; }
+        .btn-email:hover { background: #D93025; }
         
         footer {
             text-align: center;
@@ -218,45 +207,63 @@
         }
         
         @media (max-width: 768px) {
-            .repair-process, .team-grid, .contact-info {
-                grid-template-columns: 1fr;
-            }
-            
-            .map-container {
-                height: 300px;
-            }
+            .repair-process, .team-grid, .contact-info { grid-template-columns: 1fr; }
+            .map-container { height: 300px; }
         }
     </style>
     <style>
-        /* Ajustes de aura para contacto (oscuro + fondo animado) */
-        :root { --bg-deep-1:#3462c0; --bg-deep-2:#0a1322; --bg-deep-3:#0e1b2b; }
-        #bg-animated{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(1200px 600px at 20% -10%, rgba(20,184,166,.15), transparent 60%),radial-gradient(800px 500px at 80% 110%, rgba(56,189,248,.12), transparent 60%),linear-gradient(120deg, var(--bg-deep-1), var(--bg-deep-2), var(--bg-deep-3));background-size:200% 200%,200% 200%,200% 200%;animation:moveGradient 30s ease-in-out infinite alternate;filter:saturate(1.05)}
+        /* Fondo atractivo y overrides en modo claro, todo local a contact.html */
         @keyframes moveGradient{0%{background-position:0% 0%,100% 100%,0% 50%}50%{background-position:50% 50%,50% 50%,100% 50%}100%{background-position:100% 100%,0% 0%,0% 50%}}
+
+        /* Fondo aurora animado (más vistoso) */
+        #bg-animated{
+            position:fixed;inset:0;z-index:0;pointer-events:none;
+            background:
+              conic-gradient(from 210deg at 30% 40%, rgba(99,102,241,0.18), rgba(56,189,248,0.12), rgba(236,72,153,0.10), rgba(99,102,241,0.18)),
+              radial-gradient(1000px 520px at 15% -10%, rgba(56,189,248,0.18), transparent 60%),
+              radial-gradient(900px 500px at 85% 110%, rgba(236,72,153,0.16), transparent 60%),
+              linear-gradient(120deg, #f8fbff, #f9f5ff, #fff7ed);
+            background-size:200% 200%,200% 200%,200% 200%,200% 200%;
+            animation:moveGradient 32s ease-in-out infinite alternate;
+        }
         #bg-orbs{position:fixed;inset:0;z-index:1;pointer-events:none}
-        .orb{position:absolute;border-radius:9999px;filter:blur(40px);opacity:.25;mix-blend-mode:screen;will-change:transform;animation:float 22s ease-in-out infinite}
-        .orb.teal{background:radial-gradient(circle at 30% 30%, rgba(20,184,166,.8), transparent 60%)}
-        .orb.cyan{background:radial-gradient(circle at 30% 30%, rgba(34,211,238,.8), transparent 60%)}
-        .orb.violet{background:radial-gradient(circle at 30% 30%, rgba(139,92,246,.7), transparent 60%)}
+        .orb{position:absolute;border-radius:9999px;filter:blur(60px);opacity:.22;mix-blend-mode:normal;will-change:transform;animation:float 24s ease-in-out infinite}
+        .orb.teal{background:radial-gradient(circle at 30% 30%, rgba(20,184,166,.45), transparent 60%)}
+        .orb.cyan{background:radial-gradient(circle at 30% 30%, rgba(96,165,250,.40), transparent 60%)}
+        .orb.violet{background:radial-gradient(circle at 30% 30%, rgba(168,85,247,.42), transparent 60%)}
         @keyframes float{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(20px,-40px,0) scale(1.05)}100%{transform:translate3d(0,0,0) scale(1)}}
-        body{background:transparent;color:#e5e7eb}
-        header{position:sticky;top:0;z-index:50;background:rgba(2,6,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid rgba(148,163,184,.12)}
-        .content-section{background:rgba(17,24,39,.7);border:1px solid rgba(45,212,191,.12);color:#e5e7eb;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 5px 20px rgba(0,0,0,.25)}
-        h2{color:#5eead4;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid rgba(94,234,212,.35);font-size:1.8rem}
-        h3{color:#a78bfa;margin:15px 0 10px}
-        .contact-card{background:rgba(2,6,23,.6);padding:25px;border-radius:10px;text-align:center;transition:transform .3s ease,box-shadow .3s ease;border:1px solid rgba(45,212,191,.12);box-shadow:0 10px 25px rgba(0,0,0,.15)}
-        .btn{display:inline-block;background:#14b8a6;color:#0b1220;padding:12px 24px;border-radius:9999px;text-decoration:none;font-weight:800;margin-top:15px;transition:transform .25s ease,box-shadow .25s ease;border:none;cursor:pointer}
-        .btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 12px 30px rgba(20,184,166,.25)}
-        footer{text-align:center;padding:20px;margin-top:40px;color:#94a3b8;border-top:1px solid rgba(148,163,184,.2)}
+
+        /* Header claro con texto visible */
+        header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(2,6,23,.06);color:#0f172a}
+        .logo{color:var(--primary)}
+        .tagline{color:#475569}
+
+        /* Cards en estilo glass sutil */
+        .content-section{background:rgba(255,255,255,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(14,165,233,.12);box-shadow:0 8px 24px rgba(15,23,42,.06);color:#0f172a}
+        h2{color:var(--primary);border-bottom:2px solid rgba(14,165,233,.25)}
+        h3{color:var(--accent)}
+
+        .contact-card{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border:1px solid #bae6fd;color:#0f172a;box-shadow:0 5px 15px rgba(0,0,0,.08)}
+        .contact-icon{color:var(--primary)}
+
+        .btn{background:var(--primary);color:#fff}
+        .btn:hover{background:var(--accent)}
+        .btn.btn-whatsapp{background:#25D366}
+        .btn.btn-whatsapp:hover{background:#128C7E}
+        .btn.btn-email{background:#EA4335}
+        .btn.btn-email:hover{background:#D93025}
+
+        footer{color:#64748b;border-top:1px solid #e2e8f0}
     </style>
-    <link rel="stylesheet" href="styles.css">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter + Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></head>
-<body>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="light">
     <div id="bg-animated"></div>
     <div id="bg-orbs">
         <span class="orb teal"   style="top:10%; left:10%; width:260px; height:260px; animation-duration: 26s; animation-delay: .5s;"></span>
@@ -266,14 +273,14 @@
     <header>
         <div class="container">
             <div class="logo">movicel</div>
-            <div class="tagline">Servicio TÃ©cnico Especializado en Celulares</div>
+            <div class="tagline">Servicio Técnico Especializado en Celulares</div>
         </div>
     </header>
     
     <div class="container">
         <section class="content-section" reveal>
             <h2>Nuestro Local</h2>
-            <p>Estamos ubicados en una zona cÃ©ntrica y de fÃ¡cil acceso. VenÃ­ a visitarnos para diagnosticar y reparar tu dispositivo.</p>
+            <p>Estamos ubicados en una zona céntrica y de fácil acceso. Vení a visitarnos para diagnosticar y reparar tu dispositivo.</p>
             
             <div class="map-container">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3277.138722896842!2d-58.24762382341508!3d-34.762029872887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95a3293c2e88fb0f%3A0xf5b7d3b6b0b7b0b7!2sChile%20212%2C%20B1882%20Ezpeleta%20Oeste%2C%20Provincia%20de%20Buenos%20Aires%2C%20Argentina!5e0!3m2!1ses!2sus!4v1652451234567!5m2!1ses!2sus" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
@@ -282,42 +289,42 @@
             <div class="contact-info">
                 <div class="contact-card hover-lift">
                     <i class="fas fa-map-marker-alt contact-icon"></i>
-                    <h3>DirecciÃ³n</h3>
+                    <h3>Dirección</h3>
                     <p>Chile 212, B1882 Ezpeleta Oeste<br>Provincia de Buenos Aires, Argentina</p>
-                    <a href="https://goo.gl/maps/ABC123DEF456" class="btn" target="_blank">CÃ³mo llegar</a>
+                    <a href="https://goo.gl/maps/ABC123DEF456" class="btn" target="_blank">Cómo llegar</a>
                 </div>
                 
                 <div class="contact-card hover-lift">
                     <i class="fas fa-clock contact-icon"></i>
-                    <h3>Horarios de AtenciÃ³n</h3>
-                    <p>Lunes a Viernes: 9:00 - 18:00<br>SÃ¡bados: 9:00 - 13:00<br>Domingos: Cerrado</p>
+                    <h3>Horarios de Atención</h3>
+                    <p>Lunes a Viernes: 9:00 - 18:00<br>Sábados: 9:00 - 13:00<br>Domingos: Cerrado</p>
                 </div>
             </div>
         </section>
         
         <section class="content-section" reveal>
-            <h2>Nuestro Servicio de ReparaciÃ³n</h2>
-            <p>En movicel ofrecemos un servicio tÃ©cnico especializado con garantÃ­a. Contamos con tÃ©cnicos certificados y herramientas de Ãºltima generaciÃ³n para diagnosticar y reparar tu dispositivo de manera eficiente.</p>
+            <h2>Nuestro Servicio de Reparación</h2>
+            <p>En movicel ofrecemos un servicio técnico especializado con garantía. Contamos con técnicos certificados y herramientas de última generación para diagnosticar y reparar tu dispositivo de manera eficiente.</p>
             
             <div class="repair-process">
                 <div class="step hover-lift">
-                    <h3><span class="step-number">1</span> DiagnÃ³stico</h3>
-                    <p>Realizamos un diagnÃ³stico completo de tu dispositivo para identificar el problema exacto y te entregamos un presupuesto sin cargo.</p>
+                    <h3><span class="step-number">1</span> Diagnóstico</h3>
+                    <p>Realizamos un diagnóstico completo de tu dispositivo para identificar el problema exacto y te entregamos un presupuesto sin cargo.</p>
                 </div>
                 
                 <div class="step hover-lift">
-                    <h3><span class="step-number">2</span> AprobaciÃ³n</h3>
-                    <p>Una vez que aceptÃ¡s el presupuesto, procedemos con la reparaciÃ³n utilizando repuestos de calidad garantizada.</p>
+                    <h3><span class="step-number">2</span> Aprobación</h3>
+                    <p>Una vez que aceptás el presupuesto, procedemos con la reparación utilizando repuestos de calidad garantizada.</p>
                 </div>
                 
                 <div class="step hover-lift">
-                    <h3><span class="step-number">3</span> ReparaciÃ³n</h3>
-                    <p>Nuestros tÃ©cnicos especializados realizan la reparaciÃ³n con herramientas profesionales en nuestro taller equipado.</p>
+                    <h3><span class="step-number">3</span> Reparación</h3>
+                    <p>Nuestros técnicos especializados realizan la reparación con herramientas profesionales en nuestro taller equipado.</p>
                 </div>
                 
                 <div class="step hover-lift">
                     <h3><span class="step-number">4</span> Control de Calidad</h3>
-                    <p>Testeamos tu dispositivo para asegurar que funcione correctamente antes de entregÃ¡rtelo.</p>
+                    <p>Testeamos tu dispositivo para asegurar que funcione correctamente antes de entregártelo.</p>
                 </div>
             </div>
         </section>
@@ -328,66 +335,56 @@
             <div class="repair-process">
                 <div class="step hover-lift">
                     <h3><i class="fas fa-mobile-alt"></i> Pantallas</h3>
-                    <p>Cambio de pantallas rotas, display LCD, AMOLED, tÃ¡ctiles y cristales. Originales y alternativos.</p>
+                    <p>Cambio de pantallas rotas, display LCD, AMOLED, táctiles y cristales. Originales y alternativos.</p>
                 </div>
                 
                 <div class="step hover-lift">
-                    <h3><i class="fas fa-battery-full"></i> BaterÃ­as</h3>
-                    <p>Reemplazo de baterÃ­as agotadas o infladas. RecuperÃ¡ la autonomÃ­a de tu dispositivo.</p>
+                    <h3><i class="fas fa-battery-full"></i> Baterías</h3>
+                    <p>Reemplazo de baterías agotadas o infladas. Recuperá la autonomía de tu dispositivo.</p>
                 </div>
                 
                 <div class="step hover-lift">
                     <h3><i class="fas fa-plug"></i> Conectores de carga</h3>
-                    <p>ReparaciÃ³n y cambio de conectores de carga, puertos USB-C y Lightning.</p>
+                    <p>Reparación y cambio de conectores de carga, puertos USB‑C y Lightning.</p>
                 </div>
                 
                 <div class="step hover-lift">
-                    <h3><i class="fas fa-microphone"></i> CÃ¡maras y micrÃ³fonos</h3>
-                    <p>ReparaciÃ³n y reemplazo de mÃ³dulos de cÃ¡maras, micrÃ³fonos y altavoces.</p>
+                    <h3><i class="fas fa-microphone"></i> Cámaras y micrófonos</h3>
+                    <p>Reparación y reemplazo de módulos de cámaras, micrófonos y altavoces.</p>
                 </div>
                 
                 <div class="step hover-lift">
-                    <h3><i class="fas fa-tint"></i> DaÃ±o por agua</h3>
-                    <p>Limpieza y reparaciÃ³n de dispositivos mojados o con humedad. Servicio de limpieza ultrasÃ³nica.</p>
+                    <h3><i class="fas fa-tint"></i> Daño por agua</h3>
+                    <p>Limpieza y reparación de dispositivos mojados o con humedad. Servicio de limpieza ultrasónica.</p>
                 </div>
                 
                 <div class="step hover-lift">
-                    <h3><i class="fas fa-cogs"></i> Software</h3>
-                    <p>Actualizaciones, liberaciÃ³n, flasheo, desbloqueo y soluciÃ³n de problemas de software.</p>
+                    <h3><i class="fas fa-code"></i> Software</h3>
+                    <p>Actualizaciones, liberación, flasheo, desbloqueo y solución de problemas de software.</p>
                 </div>
             </div>
         </section>
-        
+
         <section class="content-section" reveal>
             <h2>Nuestro Equipo</h2>
-            <p>Contamos con tÃ©cnicos especializados y certificados en la reparaciÃ³n de dispositivos mÃ³viles de todas las marcas.</p>
-            
+            <p>Contamos con técnicos especializados y certificados en la reparación de dispositivos móviles de todas las marcas.</p>
             <div class="team-grid">
                 <div class="team-member">
-                    <div class="team-img" style="background-color: #6ee7b7; display: flex; align-items: center; justify-content: center;">
+                    <div class="team-img" style="background-color: #1e40af; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-user fa-3x" style="color: white;"></i>
                     </div>
-                    <h3>Ivan Yuticon</h3>
-                    <p>TÃ©cnico Especialista</p>
-                    <p>CertificaciÃ³n en reparaciÃ³n de placas</p>
-                </div>
-                
-                <div class="team-member">
-                    <div class="team-img" style="background-color: #7c3aed; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-user fa-3x" style="color: white;"></i>
-                    </div>
-                    <h3>Laura MÃ©ndez</h3>
-                    <p>Ingeniera en ElectrÃ³nica</p>
+                    <h3>Laura Méndez</h3>
+                    <p>Ingeniera en Electrónica</p>
                     <p>Especialista en microsoldadura</p>
                 </div>
-                
+
                 <div class="team-member">
                     <div class="team-img" style="background-color: #1e40af; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-user fa-3x" style="color: white;"></i>
                     </div>
                     <h3>Carlos Ruiz</h3>
-                    <p>TÃ©cnico en Sistemas</p>
-                    <p>Especialista en software y recuperaciÃ³n de datos</p>
+                    <p>Técnico en Sistemas</p>
+                    <p>Especialista en software y recuperación de datos</p>
                 </div>
             </div>
         </section>
@@ -417,7 +414,7 @@
                 
                 <div class="contact-card hover-lift">
                     <i class="fas fa-phone contact-icon"></i>
-                    <h3>TelÃ©fono</h3>
+                    <h3>Teléfono</h3>
                     <p>+54 9 11 6720-6578</p>
                     <a href="tel:+5491167206578" class="btn">
                         <i class="fas fa-phone"></i> Llamar ahora
@@ -429,30 +426,30 @@
     
     <footer>
         <div class="container">
-            <p>Â© 2025 movicel - Servicio TÃ©cnico Especializado en Celulares</p>
+            <p>&copy; 2025 movicel - Servicio Técnico Especializado en Celulares</p>
         </div>
     </footer>
+
+    <script>
+      (function() {
+        const elements = Array.from(document.querySelectorAll('.reveal'));
+        if (!elements.length) return;
+        if (!('IntersectionObserver' in window)) {
+          elements.forEach(el => el.classList.add('is-visible'));
+          return;
+        }
+        const seen = new WeakSet();
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              seen.add(entry.target);
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.2 });
+        elements.forEach(el => { if (!seen.has(el)) io.observe(el); });
+      })();
+    </script>
 </body>
 </html>
-
-<script>
-  (function() {
-    const elements = Array.from(document.querySelectorAll('.reveal'));
-    if (!elements.length) return;
-    if (!('IntersectionObserver' in window)) {
-      elements.forEach(el => el.classList.add('is-visible'));
-      return;
-    }
-    const seen = new WeakSet();
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          seen.add(entry.target);
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    elements.forEach(el => { if (!seen.has(el)) io.observe(el); });
-  })();
-</script>
