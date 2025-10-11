@@ -546,6 +546,8 @@
 
       section.classList.remove('hidden');
       grid.innerHTML = related.map(renderProductCard).join('');
+      try { setupScrollReveal(); } catch {}
+      try { grid.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible')); } catch {}
     } catch (err) {
       console.error('Error rendering related products', err);
     }
