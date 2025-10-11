@@ -50,22 +50,16 @@
         .link-underline::after { content: ''; position: absolute; left: 0; bottom: -6px; width: 100%; height: 2px; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, var(--teal), var(--sky)); transition: transform .35s ease; opacity: .9; }
         .link-underline:hover::after { transform: scaleX(1); }
 
-        /* ======= Fancy hamburger button ======= */
-        .hamburger { width: 42px; height: 42px; border-radius: 12px; padding: 10px; display: grid; place-items: center; background: rgba(15,23,42,.85); border: 1px solid rgba(45,212,191,.25); box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.03); transition: transform .15s ease, background .2s ease, border-color .2s ease; }
-        .hamburger:hover { transform: translateY(-1px); border-color: rgba(34,211,238,.55); }
-        .hamburger:active { transform: translateY(0); }
-        .hamburger .line { width: 22px; height: 2px; border-radius: 2px; background: #e5e7eb; display: block; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease, width .25s ease; }
-        .hamburger .line + .line { margin-top: 5px; }
-        .hamburger.is-open .line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-        .hamburger.is-open .line:nth-child(2) { opacity: 0; transform: translateX(-6px); width: 0; }
-        .hamburger.is-open .line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        /* ======= Mobile menu (injected) polish ======= */
+        #menu-toggle { width: 42px; height: 42px; border-radius: 12px; display: inline-grid; place-items: center; background: rgba(15,23,42,.85); border: 1px solid rgba(45,212,191,.25); box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.03); transition: transform .15s ease, background .2s ease, border-color .2s ease; }
+        #menu-toggle:hover { transform: translateY(-1px); border-color: rgba(34,211,238,.55); }
+        #menu-toggle:active { transform: translateY(0); }
 
-        /* ======= Mobile dropdown panel ======= */
-        #mobile-menu-panel { position: absolute; top: calc(100% + 8px); right: 0; width: 14rem; background: linear-gradient(180deg, rgba(17,24,39,.98), rgba(15,23,42,.98)); border: 1px solid rgba(148,163,184,.25); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 10px 18px rgba(20,184,166,.08); transform-origin: top right; transform: translateY(-8px) scale(.98); opacity: 0; pointer-events: none; transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-        #mobile-menu-panel[data-open='true'] { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
-        .mobile-link { display: block; padding: 0.75rem 1rem; color: #e5e7eb; font-weight: 600; letter-spacing: .2px; transition: background .2s ease, color .2s ease; }
-        .mobile-link:hover { color: #0f172a; background: linear-gradient(90deg, rgba(45,212,191,.95), rgba(56,189,248,.95)); }
-        .mobile-sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(148,163,184,.25), transparent); margin: .25rem .75rem; }
+        #mobile-menu { position: absolute; top: calc(100% + 8px); right: 0; width: 14rem; background: linear-gradient(180deg, rgba(17,24,39,.98), rgba(15,23,42,.98)); border: 1px solid rgba(148,163,184,.25); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 10px 18px rgba(20,184,166,.08); transform-origin: top right; transform: translateY(-8px) scale(.98); opacity: 0; pointer-events: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        #mobile-menu.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease; }
+        #mobile-menu a { display: block; padding: 0.75rem 1rem; color: #e5e7eb; font-weight: 600; letter-spacing: .2px; transition: background .2s ease, color .2s ease; }
+        #mobile-menu a:hover { color: #0f172a; background: linear-gradient(90deg, rgba(45,212,191,.95), rgba(56,189,248,.95)); }
+        #mobile-menu .mm-panel { padding-left: .5rem; }
     </style>
     <!-- Estilos de marca (Poppins, variables y ajustes) -->
     <link rel="stylesheet" href="styles.css">
@@ -154,18 +148,6 @@
                     </svg>
                     <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-gray-900 transform translate-x-1/2 -translate-y-1/2 bg-teal-400 rounded-full">0</span>
                 </button>
-                <!-- Botón Hamburguesa (solo móvil) -->
-                <button id="mobile-menu-toggle" class="md:hidden hamburger" aria-controls="mobile-menu-panel" aria-expanded="false" aria-label="Abrir menú">
-                    <span class="line"></span>
-                    <span class="line"></span>
-                    <span class="line"></span>
-                </button>
-            </div>
-            <!-- Panel de menú móvil -->
-            <div id="mobile-menu-panel" class="md:hidden" data-open="false" role="menu" aria-label="Menú móvil">
-                <a class="mobile-link" href="#categorias" role="menuitem">Productos</a>
-                <div class="mobile-sep"></div>
-                <a class="mobile-link" href="#contacto" role="menuitem">Contacto</a>
             </div>
         </nav>
     </header>

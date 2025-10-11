@@ -162,6 +162,8 @@
           const openMenu = () => {
             if (!mobileMenu) return;
             mobileMenu.classList.remove('hidden');
+            // Force reflow so transition plays when adding 'open'
+            void mobileMenu.offsetWidth;
             mobileMenu.classList.add('open');
             btn.classList.add('open');
             btn.setAttribute('aria-expanded', 'true');
@@ -1387,39 +1389,7 @@
     // Apply filter on browser navigation
     window.addEventListener('popstate', applyCategoryFilterFromURL);
 
-    // Mobile menu toggle (animated hamburger)
-    try {
-      const mobileToggle = $('#mobile-menu-toggle');
-      const mobilePanel = $('#mobile-menu-panel');
-      if (mobileToggle && mobilePanel) {
-        mobileToggle.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isOpen = mobilePanel.getAttribute('data-open') === 'true';
-          const next = String(!isOpen);
-          mobilePanel.setAttribute('data-open', next);
-          mobileToggle.classList.toggle('is-open', !isOpen);
-          mobileToggle.setAttribute('aria-expanded', next);
-        });
-
-        // Close when clicking outside
-        document.addEventListener('click', (e) => {
-          if (mobilePanel.getAttribute('data-open') === 'true') {
-            if (!mobilePanel.contains(e.target) && !mobileToggle.contains(e.target)) {
-              mobilePanel.setAttribute('data-open', 'false');
-              mobileToggle.classList.remove('is-open');
-              mobileToggle.setAttribute('aria-expanded', 'false');
-            }
-          }
-        });
-
-        // Close when navigating via menu links
-        mobilePanel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-          mobilePanel.setAttribute('data-open', 'false');
-          mobileToggle.classList.remove('is-open');
-          mobileToggle.setAttribute('aria-expanded', 'false');
-        }));
-      }
-    } catch {}
+    // Mobile menu is injected and handled earlier (keep a single implementation)
 
     // Inyectar el HTML del modal de detalles (solo si no existe)
     // Deshabilitado: usamos el modal estático definido en index.html
