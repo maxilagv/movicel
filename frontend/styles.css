@@ -109,3 +109,24 @@ body.light .logo h1 { color: var(--secondary); }
 /* Ocultar fondos oscuros de contacto si existen */
 body.light #bg-animated,
 body.light #bg-orbs { display: none !important; }
+
+/* ====== Aesthetic micro-animations and effects ====== */
+/* Reveal-on-scroll utility */
+.reveal { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .6s cubic-bezier(0.22,1,0.36,1); will-change: opacity, transform; }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* Subtle lift on hover */
+.hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
+.hover-lift:hover { transform: translateY(-6px); box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+
+/* Modal pop-in animation (used by JS) */
+.modal-pop-in { animation: pop .32s ease forwards; }
+@keyframes pop { 0% { transform: scale(.96); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Cart count bump */
+.count-bump { animation: bump .35s ease; }
+@keyframes bump { 0% { transform: scale(1); } 20% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* Skeleton shimmer (optional utility) */
+.skeleton { position: relative; overflow: hidden; background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.12) 20%, rgba(255,255,255,0.06) 40%); background-size: 300% 100%; animation: shimmer 1.25s infinite linear; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
