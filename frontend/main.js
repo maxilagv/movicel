@@ -412,6 +412,14 @@
     saveCart();
     // Mensaje temporal de feedback
     showTempMessage(`"${product.name}" agregado al carrito.`);
+    // Bump animation on cart count
+    try {
+      if (cartCountEl) {
+        cartCountEl.classList.remove('count-bump');
+        void cartCountEl.offsetWidth; // restart animation
+        cartCountEl.classList.add('count-bump');
+      }
+    } catch {}
   }
 
   function removeFromCart(productId) {
@@ -802,6 +810,27 @@
       }, 3000);
   }
 
+  // Scroll reveal: anima elementos con clase .reveal al entrar en viewport
+  function setupScrollReveal() {
+    const elements = $$('.reveal');
+    if (!elements.length) return;
+    if (!('IntersectionObserver' in window)) {
+      elements.forEach(el => el.classList.add('is-visible'));
+      return;
+    }
+    const seen = new WeakSet();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          seen.add(entry.target);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    elements.forEach(el => { if (!seen.has(el)) io.observe(el); });
+  }
+
   // Ensure category click sets URL filter and applies it
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.category-card');
@@ -834,11 +863,11 @@
         : 'Sin descripción.';
 
     return `
-      <div class="product-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col hover:border-teal-500 transition-all duration-300" data-price="${Number(product.price) || 0}">
+      <div class="reveal product-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col hover:border-teal-500 transition-all duration-300" data-price="${Number(product.price) || 0}">
         <div class="relative h-48 overflow-hidden">
             ${stockBadge}
             <img 
-                src="${imageUrl}" 
+                src="${imageUrl}" loading="lazy" decoding="async"
                 alt="${product.name}" 
                 class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-110"
                 onerror="this.onerror=null; this.src='https://placehold.co/400x300/1f2937/d1d5db?text=Error+al+Cargar'" 
@@ -890,12 +919,12 @@
 
     return `
       <div 
-        class="category-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-500 cursor-pointer hover:border-teal-500 hover:scale-[1.02] active:scale-[0.98]"
+        class="reveal category-card bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-500 cursor-pointer hover:border-teal-500 hover:scale-[1.02] active:scale-[0.98]"
         data-slug="${categorySlug}"
       >
         <div class="h-40 overflow-hidden relative">
             <img 
-                src="${imageUrl}" 
+                src="${imageUrl}" loading="lazy" decoding="async"
                 alt="${category.name}" 
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/1f2937/d1d5db?text=Error+al+Cargar'" 
@@ -1214,6 +1243,7 @@
         renderCategoriesAndProducts();
         applyCategoryFilterFromURL();
         try { populateMobileCategoriesMenu(); } catch {}
+        try { setupScrollReveal(); } catch {}
 
     } catch (e) {
       console.error('Error al cargar datos:', e);
