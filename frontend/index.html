@@ -60,6 +60,15 @@
         #mobile-menu a { display: block; padding: 0.75rem 1rem; color: #e5e7eb; font-weight: 600; letter-spacing: .2px; transition: background .2s ease, color .2s ease; }
         #mobile-menu a:hover { color: #0f172a; background: linear-gradient(90deg, rgba(45,212,191,.95), rgba(56,189,248,.95)); }
         #mobile-menu .mm-panel { padding-left: .5rem; }
+
+        /* ======= Desktop dropdown (Productos) ======= */
+        #desktop-menu-panel { position: absolute; top: calc(100% + 10px); right: 0; min-width: 18rem; background: linear-gradient(180deg, rgba(17,24,39,.98), rgba(15,23,42,.98)); border: 1px solid rgba(148,163,184,.25); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 10px 18px rgba(20,184,166,.08); transform-origin: top right; transform: translateY(-8px) scale(.98); opacity: 0; pointer-events: none; transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease; z-index: 60; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        #desktop-menu-panel[data-open='true'] { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+        #desktop-menu-panel .menu-title { padding: .75rem 1rem; font-weight: 700; color: #a5f3fc; border-bottom: 1px solid rgba(148,163,184,.25); }
+        #desktop-menu-list { padding: .35rem .5rem; max-height: 60vh; overflow-y: auto; }
+        #desktop-menu-list a { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem .75rem; color: #e5e7eb; border-radius: 10px; font-weight: 600; letter-spacing: .2px; transition: background .2s ease, color .2s ease, transform .2s ease; }
+        #desktop-menu-list a:hover { color: #0f172a; background: linear-gradient(90deg, rgba(45,212,191,.95), rgba(56,189,248,.95)); transform: translateX(2px); }
+        #desktop-menu-list .count { font-size: .75rem; color: #cbd5e1; }
     </style>
     <!-- Estilos de marca (Poppins, variables y ajustes) -->
     <link rel="stylesheet" href="styles.css">
@@ -137,8 +146,8 @@
     <header class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm shadow-lg">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center relative">
             <a href="#" class="text-3xl font-extrabold brand-gradient">Movicel</a>
-            <div class="flex items-center space-x-6">
-                <a href="#categorias" class="text-white hover:text-teal-400 transition-colors hidden md:inline link-underline">Productos</a>
+            <div id="nav-actions" class="flex items-center space-x-6 relative">
+                <a id="desktop-products-link" href="#categorias" class="text-white hover:text-teal-400 transition-colors hidden md:inline link-underline">Productos</a>
                 <a href="#contacto" class="text-white hover:text-teal-400 transition-colors hidden md:inline link-underline">Contacto</a>
                 
                 <!-- BotÃƒÂ³n del Carrito -->
@@ -148,6 +157,11 @@
                     </svg>
                     <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-gray-900 transform translate-x-1/2 -translate-y-1/2 bg-teal-400 rounded-full">0</span>
                 </button>
+            </div>
+            <!-- Desktop dropdown: Productos -->
+            <div id="desktop-menu-panel" role="menu" aria-label="Menú Productos" data-open="false" class="hidden sm:block">
+                <div class="menu-title">Productos</div>
+                <div id="desktop-menu-list"></div>
             </div>
         </nav>
     </header>

@@ -244,6 +244,38 @@
     return txt.value;
   }
 
+  // Build desktop dropdown list for Productos (md+)
+  function populateDesktopMenu() {
+    const list = document.getElementById('desktop-menu-list');
+    if (!list) return;
+    const cats = Array.isArray(state.categories) ? state.categories : [];
+    if (!cats.length) {
+      list.innerHTML = '<div class="py-2 px-3 text-gray-400">No hay categorias.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    cats.forEach(cat => {
+      const catSlug = slug(cat.name);
+      const count = state.products.filter(p => String(getProductCategoryId(p)) === String(cat.id)).length;
+      const a = document.createElement('a');
+      a.href = '#categorias';
+      a.dataset.slug = catSlug;
+      a.innerHTML = `<span>${decodeEntities(cat.name)}</span><span class="count">${count}</span>`;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('categoria', catSlug);
+          history.pushState({}, '', url);
+        } catch {}
+        applyCategoryFilterFromURL();
+        const panel = document.getElementById('desktop-menu-panel');
+        if (panel) panel.setAttribute('data-open', 'false');
+      });
+      list.appendChild(a);
+    });
+  }
+
   // Normaliza URLs de imagenes que puedan venir con entidades HTML u otros artefactos.
   function getSafeImageUrl(input, fallback) {
     const decoded = decodeEntities(input || '');
@@ -1247,6 +1279,7 @@
         renderCategoriesAndProducts();
         applyCategoryFilterFromURL();
         try { populateMobileCategoriesMenu(); } catch {}
+        try { populateDesktopMenu(); } catch {}
         try { setupScrollReveal(); } catch {}
 
     } catch (e) {
@@ -1388,6 +1421,36 @@
     exposeForDebug();
     // Apply filter on browser navigation
     window.addEventListener('popstate', applyCategoryFilterFromURL);
+
+    // Desktop dropdown behavior (Productos)
+    try {
+      const link = document.getElementById('desktop-products-link');
+      const panel = document.getElementById('desktop-menu-panel');
+      const nav = link?.closest('nav');
+      if (link && panel && nav) {
+        let hoverTimer = null;
+        const open = () => { if (window.innerWidth >= 768) panel.setAttribute('data-open', 'true'); };
+        const close = () => panel.setAttribute('data-open', 'false');
+
+        link.addEventListener('mouseenter', open);
+        link.addEventListener('focus', open);
+        link.addEventListener('click', (e) => {
+          if (window.innerWidth >= 768) {
+            e.preventDefault();
+            const isOpen = panel.getAttribute('data-open') === 'true';
+            panel.setAttribute('data-open', isOpen ? 'false' : 'true');
+          }
+        });
+        [panel, link, nav].forEach(el => {
+          el?.addEventListener('mouseenter', () => { if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; } });
+          el?.addEventListener('mouseleave', () => { hoverTimer = setTimeout(close, 120); });
+        });
+        document.addEventListener('click', (e) => {
+          if (!panel.contains(e.target) && !link.contains(e.target)) close();
+        });
+        window.addEventListener('resize', () => { if (window.innerWidth < 768) close(); });
+      }
+    } catch {}
 
     // Mobile menu is injected and handled earlier (keep a single implementation)
 
