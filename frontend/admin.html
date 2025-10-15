@@ -453,6 +453,33 @@
         .tab-content.active {
             display: block;
         }
+        /* Sidebar backdrop and menu toggle (mobile) + extra responsive rules */
+        .sidebar-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 900; display: none; }
+        .menu-toggle { display: none; background: none; border: 0; color: var(--secondary); font-size: 22px; width: 40px; height: 40px; border-radius: 8px; align-items: center; justify-content: center; cursor: pointer; }
+        .menu-toggle:active { transform: scale(0.96); }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; }
+            .header { gap: 10px; }
+            .header h1 { font-size: 1.35rem; }
+            .tabs { gap: 8px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+            .tab { flex: none; padding: 10px 14px; }
+        }
+
+        @media (max-width: 640px) {
+            .main-content { margin-left: 0; padding: 16px; }
+            .sidebar { transform: translateX(-100%); width: var(--sidebar-width); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar.open + .sidebar-backdrop { display: block; }
+            .table-container { overflow: visible; }
+            .table-container table { display: block; }
+            .table-container thead { display: none; }
+            .table-container tbody { display: block; }
+            .table-container tr { display: block; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+            .table-container td { display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; align-items: center; padding: 8px 0; border: none; }
+            .table-container td::before { content: attr(data-label); font-weight: 600; color: var(--gray); }
+            .action-buttons { justify-content: flex-start; }
+        }
     </style>
     <!-- Estilos de marca (Poppins, variables y ajustes) -->
     <link rel="stylesheet" href="styles.css">
@@ -489,9 +516,11 @@
         </div>
     </div>
     
+    <div class="sidebar-backdrop"></div>
     <!-- Main Content -->
     <div class="main-content">
         <div class="header">
+            <button class="menu-toggle" aria-label="Abrir menú"><i class="fas fa-bars"></i></button>
             <h1>Panel de Administración</h1>
             <div class="user-info">
                 <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Usuario">
@@ -635,11 +664,13 @@
                 
                 <div class="form-group">
                     <label for="category-image">URL de la imagen</label>
-                    <input type="text" class="form-control" id="category-image" placeholder="https://...">
-                    
-                    <div class="image-preview">
-                        <span>Vista previa de la imagen</span>
+                    <div style="display:flex; gap:10px;">
+                      <input type="text" class="form-control" id="category-image" placeholder="URL generada automáticamente..." readonly>
+                      <button type="button" class="btn btn-primary" onclick="abrirUploader('category-image')">
+                        <i class="fas fa-upload"></i> Subir
+                      </button>
                     </div>
+                    <div class="image-preview"><span>Vista previa de la imagen</span></div>
                 </div>
                 
                 <div class="form-group">
@@ -692,11 +723,13 @@
                 
                 <div class="form-group">
                     <label for="product-image">URL de la imagen</label>
-                    <input type="text" class="form-control" id="product-image" placeholder="https://...">
-                    
-                    <div class="image-preview">
-                        <span>Vista previa de la imagen</span>
+                    <div style="display:flex; gap:10px;">
+                      <input type="text" class="form-control" id="product-image" placeholder="URL generada automáticamente..." readonly>
+                      <button type="button" class="btn btn-primary" onclick="abrirUploader('product-image')">
+                        <i class="fas fa-upload"></i> Subir
+                      </button>
                     </div>
+                    <div class="image-preview"><span>Vista previa de la imagen</span></div>
                 </div>
                 
                 <div class="form-group">
@@ -716,5 +749,52 @@
 
     <script src="config.js"></script>
     <script src="admin.js"></script>
+    <!-- Cloudinary Upload Widget -->
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+    <script>
+      const cloudName = "dggn0xflik"; // Cloud Movicel
+      const uploadPreset = "movicel_uploads"; // preset unsigned
+
+      function abrirUploader(inputId) {
+        if (!window.cloudinary || !cloudName || !uploadPreset) {
+          alert("Error: Cloudinary no está configurado correctamente.");
+          return;
+        }
+
+        cloudinary.openUploadWidget(
+          {
+            cloudName,
+            uploadPreset,
+            sources: ["local", "camera", "url"],
+            multiple: false,
+            folder: "movicel",
+            resourceType: "image",
+            clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
+            maxFileSize: 5000000, // 5 MB
+            singleUploadAutoClose: true,
+          },
+          (error, result) => {
+            if (error) {
+              console.error("❌ Error subiendo imagen:", error);
+              alert("Error al subir la imagen.");
+              return;
+            }
+
+            if (result && result.event === "success") {
+              const { secure_url } = result.info;
+              const input = document.getElementById(inputId);
+              if (input) input.value = secure_url;
+              const preview = input?.parentElement?.parentElement?.querySelector(".image-preview")
+                            || input?.parentElement?.querySelector(".image-preview");
+              if (preview) preview.innerHTML = `
+                <img src="${secure_url}" alt="Preview" style="max-width:100%;max-height:100%;object-fit:contain;" />
+              `;
+              // Dispara evento input por si otros listeners dependen de él
+              try { input?.dispatchEvent(new Event('input', { bubbles: true })); } catch(_) {}
+            }
+          }
+        );
+      }
+    </script>
   </body>
 </html>

@@ -165,6 +165,25 @@
     });
   }
 
+  function setupSidebarToggle() {
+    const btn = qs('.menu-toggle');
+    const sidebar = qs('.sidebar');
+    const backdrop = qs('.sidebar-backdrop');
+    if (!btn || !sidebar || !backdrop) return;
+    btn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 640) sidebar.classList.remove('open');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') sidebar.classList.remove('open');
+    });
+  }
+
   function setupSidebarNav() {
     const menu = qs('.sidebar .menu');
     if (!menu) return;
@@ -180,6 +199,7 @@
         qsa('.tab').forEach(t => t.classList.remove('active'));
         qsa('.tab-content').forEach(c => c.classList.remove('active'));
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (window.innerWidth <= 640) qs('.sidebar')?.classList.remove('open');
         return;
       }
       if (nav === 'categorias') {
@@ -189,6 +209,7 @@
         document.getElementById('categories-section')?.classList.add('active');
         try { await loadCategories(); } catch (_) {}
         document.getElementById('categories-section')?.scrollIntoView({ behavior: 'smooth' });
+        if (window.innerWidth <= 640) qs('.sidebar')?.classList.remove('open');
         return;
       }
       if (nav === 'productos') {
@@ -198,6 +219,7 @@
         document.getElementById('products-section')?.classList.add('active');
         try { await loadProducts(); } catch (_) {}
         document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
+        if (window.innerWidth <= 640) qs('.sidebar')?.classList.remove('open');
         return;
       }
       if (nav === 'compras') {
@@ -207,6 +229,7 @@
         document.getElementById('orders-section')?.classList.add('active');
         try { await loadOrders(); } catch (_) {}
         document.getElementById('orders-section')?.scrollIntoView({ behavior: 'smooth' });
+        if (window.innerWidth <= 640) qs('.sidebar')?.classList.remove('open');
         return;
       }
       if (nav === 'logout') {
@@ -255,11 +278,11 @@
       const safeImg = (c.image_url && String(c.image_url).trim() !== '') ? c.image_url : 'https://placehold.co/40x40';
       return `
       <tr data-id="${c.id}">
-        <td>${c.id}</td>
-        <td>${escapeHtml(c.name || '')}</td>
-        <td><img src="${safeImg}" alt="${escapeHtml(c.name || '')}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;"></td>
-        <td>-</td>
-        <td>
+        <td data-label="ID">${c.id}</td>
+        <td data-label="Nombre">${escapeHtml(c.name || '')}</td>
+        <td data-label="Imagen"><img src="${safeImg}" alt="${escapeHtml(c.name || '')}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;"></td>
+        <td data-label="Productos">-</td>
+        <td data-label="Acciones">
           <div class="action-buttons">
             <div class="btn-icon btn-edit" title="Editar"><i class="fas fa-edit"></i></div>
             <div class="btn-icon delete-category" data-id="${c.id}" title="Eliminar"><i class="fas fa-trash"></i></div>
@@ -319,15 +342,15 @@
       const total = fmtMoney(o.total_amount || 0);
       return `
         <tr data-id="${o.id}">
-          <td>${o.id}</td>
-          <td>${dateStr}</td>
-          <td>${escapeHtml(o.order_number || '')}</td>
-          <td>${escapeHtml(code)}</td>
-          <td>${name}</td>
-          <td>${email}</td>
-          <td>${phone}</td>
-          <td>${total}</td>
-          <td>
+          <td data-label="ID">${o.id}</td>
+          <td data-label="Fecha">${dateStr}</td>
+          <td data-label="Nº Orden">${escapeHtml(o.order_number || '')}</td>
+          <td data-label="Código">${escapeHtml(code)}</td>
+          <td data-label="Cliente">${name}</td>
+          <td data-label="Email">${email}</td>
+          <td data-label="Teléfono">${phone}</td>
+          <td data-label="Total">${total}</td>
+          <td data-label="Acciones">
             <div class="action-buttons">
               <a class="btn-icon" href="${getBase()}/pedidos/${o.id}/pdf" target="_blank" title="PDF">
                 <i class="fas fa-file-pdf"></i>
@@ -366,13 +389,13 @@
       const safeImg = (p.image_url && String(p.image_url).trim() !== '') ? p.image_url : 'https://placehold.co/40x40';
       return `
       <tr data-id="${p.id}">
-        <td>${p.id}</td>
-        <td><img src="${safeImg}" alt="Producto" style="width:40px;height:40px;object-fit:cover;border-radius:6px;"></td>
-        <td>${escapeHtml(p.name || '')}</td>
-        <td>${escapeHtml(p.category_name || '')}</td>
-        <td>$${Number(p.price || 0).toFixed(2)}</td>
-        <td>${Number(p.stock_quantity ?? 0)}</td>
-        <td>
+        <td data-label="ID">${p.id}</td>
+        <td data-label="Imagen"><img src="${safeImg}" alt="Producto" style="width:40px;height:40px;object-fit:cover;border-radius:6px;"></td>
+        <td data-label="Nombre">${escapeHtml(p.name || '')}</td>
+        <td data-label="Categoría">${escapeHtml(p.category_name || '')}</td>
+        <td data-label="Precio">$${Number(p.price || 0).toFixed(2)}</td>
+        <td data-label="Stock">${Number(p.stock_quantity ?? 0)}</td>
+        <td data-label="Acciones">
           <div class="action-buttons">
             <div class="btn-icon btn-edit" title="Editar"><i class="fas fa-edit"></i></div>
             <div class="btn-icon delete-product" data-id="${p.id}" title="Eliminar"><i class="fas fa-trash"></i></div>
@@ -515,6 +538,7 @@
     requireAuthOrRedirect();
     wireTabs();
     setupSidebarNav();
+    setupSidebarToggle();
     setupModals();
     setupForms();
     document.getElementById('refresh-orders')?.addEventListener('click', () => loadOrders());
