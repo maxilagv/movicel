@@ -12,6 +12,7 @@
   const getAccess = () => localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
   const getRefresh = () => localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
   const setAccess = (t) => { try { localStorage.setItem('accessToken', t); } catch (_) { sessionStorage.setItem('accessToken', t); } };
+  const clearTokens = () => { try { localStorage.removeItem('accessToken'); localStorage.removeItem('refreshToken'); } catch (_) {} try { sessionStorage.removeItem('accessToken'); sessionStorage.removeItem('refreshToken'); } catch (_) {} };
 
   // In-memory caches for edit prefill
   let categoriesCache = [];
@@ -79,13 +80,31 @@
         const first = data.errors[0];
         if (first?.msg) msg = first.msg;
       }
+      if (res.status === 401 || res.status === 403) {
+        // Sesión inválida/expirada: limpiar y redirigir a login
+        clearTokens();
+        try {
+          const params = new URLSearchParams({ m: 'sesion-expirada' });
+          window.location.href = `login.html?${params.toString()}`;
+        } catch (_) {
+          window.location.href = 'login.html';
+        }
+      }
       throw new Error(msg);
     }
     return data;
   }
 
-  function requireAuthOrRedirect() {
-    if (!getAccess()) window.location.href = 'login.html';
+  async function ensureAuth() {
+    if (getAccess()) return true;
+    const rt = getRefresh();
+    if (rt) {
+      const ok = await refreshAccessToken();
+      if (ok) return true;
+    }
+    clearTokens();
+    window.location.href = 'login.html';
+    return false;
   }
 
   // UI helpers
@@ -535,7 +554,8 @@
   }
 
   async function init() {
-    requireAuthOrRedirect();
+    const ok = await ensureAuth();
+    if (!ok) return;
     wireTabs();
     setupSidebarNav();
     setupSidebarToggle();
